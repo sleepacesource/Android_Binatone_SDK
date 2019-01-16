@@ -1,0 +1,74 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/page_bg"
+    android:orientation="vertical" >
+
+    <include layout="@layout/header" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_margin"
+        android:paddingRight="@dimen/activity_margin"
+        android:paddingTop="0dp" >
+
+        <TextView
+            android:id="@+id/tips"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:gravity="center_vertical"
+            android:text="@string/select_id"
+            android:textColor="@color/COLOR_3"
+            android:textSize="@dimen/Title_3" />
+
+        <include layout="@layout/divider_line" />
+
+        <RelativeLayout
+            android:id="@+id/layout_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:descendantFocusability="blocksDescendants" >
+
+            <TextView
+                android:id="@+id/tv_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/iv_refresh"
+                android:clickable="false"
+                android:focusable="false"
+                android:gravity="center_vertical"
+                android:textColor="@color/COLOR_4"
+                android:textSize="@dimen/Title_4" 
+                android:text="@string/click_refresh"
+                />
+
+            <ImageView
+                android:id="@+id/iv_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="false"
+                android:focusable="false"
+                android:src="@drawable/bg_refresh" />
+        </RelativeLayout>
+
+        <include layout="@layout/divider_line" />
+
+        <ListView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:cacheColorHint="@color/transparent"
+            android:scrollbars="none" 
+            android:dividerHeight="1dp"
+           	android:divider="@color/black_10"
+            />
+    </LinearLayout>
+
+</LinearLayout>

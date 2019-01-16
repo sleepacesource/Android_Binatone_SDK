@@ -1,0 +1,278 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res/com.binatonesdk.demo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/page_bg"
+    android:orientation="vertical" >
+
+    <include layout="@layout/header" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_margin"
+        android:paddingRight="@dimen/activity_margin"
+        android:paddingTop="0dp" >
+
+        <com.binatonesdk.demo.view.AnalysisChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginTop="12dp"
+            android:layerType="software" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="15dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" 
+            >
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@color/asleep" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="1dp"
+                android:gravity="left"
+                android:text="@string/asleep"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_5" />
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@color/awake" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="1dp"
+                android:gravity="left"
+                android:text="@string/awake"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_5" />
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@color/out_of_bed" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="1dp"
+                android:gravity="left"
+                android:text="@string/left_bed"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_5" />
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/ic_none" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="1dp"
+                android:gravity="left"
+                android:text="@string/not_recorded"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_5" />
+        </LinearLayout>
+
+        <include layout="@layout/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/total_sleep"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+
+            <TextView
+                android:id="@+id/tv_sleep_duration"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:paddingRight="10dp"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+        </LinearLayout>
+
+        <include layout="@layout/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/total_waking"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+
+            <TextView
+                android:id="@+id/tv_awake_duration"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:paddingRight="10dp"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+        </LinearLayout>
+
+        <include layout="@layout/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/left_bed_total"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+
+            <TextView
+                android:id="@+id/tv_out_of_bed_duration"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:paddingRight="10dp"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+        </LinearLayout>
+
+        <include layout="@layout/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/no_monitored_total"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+
+            <TextView
+                android:id="@+id/tv_no_monitor_duration"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:paddingRight="10dp"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+        </LinearLayout>
+
+        <include layout="@layout/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/avg_heart"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+
+            <TextView
+                android:id="@+id/tv_avg_heartrate"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:paddingRight="10dp"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+        </LinearLayout>
+
+        <include layout="@layout/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/avg_breath"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+
+            <TextView
+                android:id="@+id/tv_avg_breathrate"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|right"
+                android:paddingRight="10dp"
+                android:textColor="@color/COLOR_3"
+                android:textSize="@dimen/Title_3" />
+        </LinearLayout>
+
+        <include layout="@layout/divider_line" />
+    </LinearLayout>
+
+</LinearLayout>
