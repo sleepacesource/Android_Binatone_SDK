@@ -368,7 +368,7 @@ public class HistoryDataFragment extends BaseFragment {
 					0, 0 });
 			
 			Analysis analysis = AnalysisUtil.analysData(summ, detail, 0);
-			SdkLog.log(TAG+" demo data analysis:" + analysis+",sleepState:"+ Arrays.toString(analysis.getSca_array()));
+			SdkLog.log(TAG+" demo data analysis:" + analysis.getAlgorithmVer()+",sleepState:"+ Arrays.toString(analysis.getSca_array()));
 //			Analysis analysis = new Analysis();
 //			analysis.setAlgorithmVer("1.0.3");
 //			analysis.setAvgHeartRate(107);
