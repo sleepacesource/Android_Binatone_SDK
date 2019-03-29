@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 public class HistoryDataFragment extends BaseFragment {
 
-	private Button btnSync, btn1115, btn1126, btnDemo;
+	private Button btnSync, btn1115, btn1126, btnAbortHistoryDownload, btnAbortGetLast24HourData, btnDemo;
 	private ProgressDialog progressDialog;
 	
 	//10 days, Including start time and end time
@@ -64,6 +64,8 @@ public class HistoryDataFragment extends BaseFragment {
 		btn1115 = (Button) root.findViewById(R.id.btn_1115_1125);
 		btn1126 = (Button) root.findViewById(R.id.btn_1126_1206);
 		btnSync = (Button) root.findViewById(R.id.btn_sync);
+		btnAbortHistoryDownload = (Button) root.findViewById(R.id.btn_abortHistoryDownload);
+		btnAbortGetLast24HourData = (Button) root.findViewById(R.id.btn_abortGetLast24HourData);
 		btnDemo = (Button) root.findViewById(R.id.btn_demo_data);
 	}
 
@@ -74,6 +76,8 @@ public class HistoryDataFragment extends BaseFragment {
 		btnSync.setOnClickListener(this);
 		btn1115.setOnClickListener(this);
 		btn1126.setOnClickListener(this);
+		btnAbortHistoryDownload.setOnClickListener(this);
+		btnAbortGetLast24HourData.setOnClickListener(this);
 		btnDemo.setOnClickListener(this);
 	}
 
@@ -96,6 +100,9 @@ public class HistoryDataFragment extends BaseFragment {
 		mActivity.setTitle(R.string.history_data);
 		btn1115.setText(getString(R.string.sync)+"(" + startTime1 + "~" + endTime1 +") 10days");
 		btn1126.setText(getString(R.string.sync)+"(" + startTime2 + "~" + endTime2 +") 10days");
+		
+		btnAbortHistoryDownload.setText("AbortHistoryDownload");
+		btnAbortGetLast24HourData.setText("AbortGetLast24HourData");
 		
 		progressDialog = new ProgressDialog(mActivity);
 		progressDialog.setIcon(android.R.drawable.ic_dialog_info);
@@ -175,7 +182,11 @@ public class HistoryDataFragment extends BaseFragment {
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		super.onClick(v);
-		if (v == btnSync) {
+		if(v == btnAbortGetLast24HourData) {
+			
+		}else if(v == btnAbortHistoryDownload) {
+			
+		}else if (v == btnSync) {
 //			Calendar cal = Calendar.getInstance();
 //			cal.set(Calendar.HOUR_OF_DAY, 0);
 //			cal.set(Calendar.MINUTE, 0);

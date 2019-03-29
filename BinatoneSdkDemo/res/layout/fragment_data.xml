@@ -34,6 +34,28 @@
         android:layout_marginRight="0dp"
         android:layout_marginTop="10dp"
         android:textSize="@dimen/Title_2" />
+    
+    <Button
+        android:id="@+id/btn_abortHistoryDownload"
+        style="@style/common_bt"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/Title_2" 
+        android:visibility="gone"
+        />
+    
+    <Button
+        android:id="@+id/btn_abortGetLast24HourData"
+        style="@style/common_bt"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/Title_2" 
+        android:visibility="gone"
+        />
 
     <Button
         android:id="@+id/btn_demo_data"
