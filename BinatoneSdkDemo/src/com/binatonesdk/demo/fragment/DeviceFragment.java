@@ -224,21 +224,6 @@ public class DeviceFragment extends BaseFragment {
 							btnUpgrade.setEnabled(true);
 							mActivity.hideUpgradeDialog();
 //							tvUpgrade.setText(R.string.update_completed);
-						}else {
-//							getBinatoneHelper().setMtu(100, new IResultCallback() {
-//								@Override
-//								public void onResultCallback(CallbackData cd) {
-//									// TODO Auto-generated method stub
-//									SdkLog.log(TAG+" setMtu cd:" + cd);
-//									if(cd.getCallbackType() == IDeviceManager.METHOD_SET_MTU) {
-//										if(cd.isSuccess()) {
-//											//set mtu success
-//										}else {
-//											//set mtu fail
-//										}
-//									}
-//								}
-//							});
 						}
 						//getBinatoneHelper().getAlarmConfig(3000, getAlarmCallback);
 					}

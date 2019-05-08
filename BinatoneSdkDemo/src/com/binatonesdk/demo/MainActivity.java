@@ -8,7 +8,9 @@ import com.binatonesdk.demo.fragment.RealtimeDataFragment;
 import com.sleepace.sdk.binatone.BinatoneHelper;
 import com.sleepace.sdk.interfs.IConnectionStateCallback;
 import com.sleepace.sdk.interfs.IDeviceManager;
+import com.sleepace.sdk.interfs.IResultCallback;
 import com.sleepace.sdk.manager.CONNECTION_STATE;
+import com.sleepace.sdk.manager.CallbackData;
 import com.sleepace.sdk.util.SdkLog;
 
 import android.Manifest;
@@ -127,6 +129,23 @@ public class MainActivity extends BaseActivity {
 		upgradeDialog.setMessage(getString(R.string.upgrading));
 		upgradeDialog.setCancelable(false);
 		upgradeDialog.setCanceledOnTouchOutside(false);
+		
+		mHelper.setMtu(509, new IResultCallback<Integer>() {
+			@Override
+			public void onResultCallback(CallbackData<Integer> cd) {
+				// TODO Auto-generated method stub
+				SdkLog.log(TAG+" setMtu cd:" + cd);
+				if(cd.getCallbackType() == IDeviceManager.METHOD_SET_MTU) {
+					if(cd.isSuccess()) {
+						//set mtu success
+						int mtu = cd.getResult();
+						SdkLog.log(TAG+" setMtu success mut:" + mtu);
+					}else {
+						//set mtu fail
+					}
+				}
+			}
+		});
 	}
 	
 	
