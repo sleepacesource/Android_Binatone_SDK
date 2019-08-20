@@ -70,4 +70,8 @@
   <string name="obtain_mac_address">获取Mac地址</string>
   <string name="charging">充电中</string>
   <string name="initialization">初始化</string>
+  <string name="leaving_bed_alert">离床报警开关</string>
+  <string name="notice_leaving_bed">出现了离床报警，请立即关注</string>
+  <string name="notice_apnea">出现了呼吸暂停报警，请立即关注</string>
+  <string name="Daily_Report">日报告</string>
 </resources>

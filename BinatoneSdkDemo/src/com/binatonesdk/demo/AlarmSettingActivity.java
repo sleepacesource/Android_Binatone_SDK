@@ -21,8 +21,14 @@ public class AlarmSettingActivity extends BaseActivity {
 	private TextView tvStime, tvEtime;
     private BinatoneHelper mHelper;
     private SelectTimeDialog timeDialog;
-    
-	public static AlarmConfig alarmConfig = new AlarmConfig();
+    /**
+     * 呼吸暂停报警配置
+     */
+	public static AlarmConfig bpAlarmConfig = new AlarmConfig();
+	/**
+	 * 离床报警配置
+	 */
+	public static AlarmConfig oobAlarmConfig = new AlarmConfig();
 	
 	private boolean isStartTime;
 	private byte sHour, sMin, eHour, eMin;
@@ -31,15 +37,15 @@ public class AlarmSettingActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mHelper = BinatoneHelper.getInstance(this);
-        sHour = (byte) alarmConfig.getHour();
-        sMin = (byte) alarmConfig.getMinute();
+        sHour = (byte) bpAlarmConfig.getHour();
+        sMin = (byte) bpAlarmConfig.getMinute();
         Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR_OF_DAY, sHour);
 		calendar.set(Calendar.MINUTE, sMin);
-		calendar.add(Calendar.MINUTE, alarmConfig.getDuration());
+		calendar.add(Calendar.MINUTE, bpAlarmConfig.getDuration());
 		eHour = (byte) calendar.get(Calendar.HOUR_OF_DAY);
 		eMin = (byte) calendar.get(Calendar.MINUTE);
-		SdkLog.log(TAG+" onCreate alarmConfig:" + alarmConfig+",h:"+sHour+",m:"+sMin+",eh:"+eHour+",em:"+eMin);
+		SdkLog.log(TAG+" onCreate alarmConfig:" + bpAlarmConfig+",h:"+sHour+",m:"+sMin+",eh:"+eHour+",em:"+eMin);
         
         setContentView(R.layout.activity_autostart);
         findView();
@@ -134,21 +140,40 @@ public class AlarmSettingActivity extends BaseActivity {
     			time = (int) ((cal2.getTimeInMillis() - cal1.getTimeInMillis()) / 1000);
     		}
     		
-    		alarmConfig.setHour(sHour);
-    		alarmConfig.setMinute(sMin);
-    		alarmConfig.setDuration((short) (time / 60));
+    		bpAlarmConfig.setHour(sHour);
+    		bpAlarmConfig.setMinute(sMin);
+    		bpAlarmConfig.setDuration((short) (time / 60));
     		
-    		mHelper.setAlarm(alarmConfig.isEnable(), alarmConfig.getHour(), alarmConfig.getMinute(), alarmConfig.getDuration(), 3000, new IResultCallback<Void>() {
+    		oobAlarmConfig.setHour(sHour);
+    		oobAlarmConfig.setMinute(sMin);
+    		oobAlarmConfig.setDuration((short) (time / 60));
+    		
+    		mHelper.setBreathPauseAlarm(bpAlarmConfig.isEnable(), bpAlarmConfig.getHour(), bpAlarmConfig.getMinute(), bpAlarmConfig.getDuration(), 3000, new IResultCallback<Void>() {
     			@Override
     			public void onResultCallback(CallbackData<Void> cd) {
     				// TODO Auto-generated method stub
-    				SdkLog.log(TAG+" onResultCallback " + cd);
-    				if(cd.getCallbackType() == IMonitorManager.METHOD_ALARM_SET) {
+    				SdkLog.log(TAG+" setBreathPauseAlarm ResultCallback " + cd);
+    				if(cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_SET) {
     					if(cd.isSuccess()) {
-    						finish();
+    						//finish();
     					}else {
     						
     					}
+    					
+    					mHelper.setOutOfBedAlarm(oobAlarmConfig.isEnable(), oobAlarmConfig.getHour(), oobAlarmConfig.getMinute(), oobAlarmConfig.getDuration(), 3000, new IResultCallback<Void>() {
+    		    			@Override
+    		    			public void onResultCallback(CallbackData<Void> cd) {
+    		    				// TODO Auto-generated method stub
+    		    				SdkLog.log(TAG+" setOutOfBedAlarm onResultCallback " + cd);
+    		    				if(cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_SET) {
+    		    					if(cd.isSuccess()) {
+    		    						finish();
+    		    					}else {
+    		    						
+    		    					}
+    		    				}
+    		    			}
+    		    		});
     				}
     			}
     		});

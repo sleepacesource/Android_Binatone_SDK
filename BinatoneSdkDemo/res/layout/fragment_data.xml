@@ -24,7 +24,9 @@
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginTop="10dp"
-        android:textSize="@dimen/Title_2" />
+        android:textSize="@dimen/Title_2" 
+        android:visibility="gone"
+        />
     
     <Button
         android:id="@+id/btn_1126_1206"
@@ -33,7 +35,9 @@
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
         android:layout_marginTop="10dp"
-        android:textSize="@dimen/Title_2" />
+        android:textSize="@dimen/Title_2" 
+        android:visibility="gone"
+        />
     
     <Button
         android:id="@+id/btn_abortHistoryDownload"

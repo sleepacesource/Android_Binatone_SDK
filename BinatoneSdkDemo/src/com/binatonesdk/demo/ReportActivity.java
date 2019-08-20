@@ -59,7 +59,7 @@ public class ReportActivity extends BaseActivity {
     		tvTitle.setText(R.string.data24);
     		break;
     	case REPORT_TYPE_HISOTRY:
-    		tvTitle.setText(R.string.history_data);
+    		tvTitle.setText(R.string.Daily_Report);
     		break;
     	case REPORT_TYPE_DEMO:
     		tvTitle.setText(R.string.simulation_data);

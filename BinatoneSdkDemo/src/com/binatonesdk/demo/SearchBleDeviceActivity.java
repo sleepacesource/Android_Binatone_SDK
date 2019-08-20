@@ -328,6 +328,7 @@ public class SearchBleDeviceActivity extends BaseActivity {
 		            
 		            //if(!TextUtils.isEmpty(modelName) && !TextUtils.isEmpty(deviceName) && deviceName.startsWith("MBP89SN")){
 		            if(!TextUtils.isEmpty(modelName) && !TextUtils.isEmpty(deviceName)){
+		            	SdkLog.log(TAG+" onLeScan modelName:" + modelName+",deviceName:" + deviceName);
 		            	BleDevice ble = new BleDevice();
 		            	ble.setModelName(modelName);
 		            	ble.setAddress(device.getAddress());

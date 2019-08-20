@@ -6,6 +6,7 @@ import com.binatonesdk.demo.fragment.DeviceFragment;
 import com.binatonesdk.demo.fragment.HistoryDataFragment;
 import com.binatonesdk.demo.fragment.RealtimeDataFragment;
 import com.sleepace.sdk.binatone.BinatoneHelper;
+import com.sleepace.sdk.binatone.interfs.DeviceStatusListener;
 import com.sleepace.sdk.interfs.IConnectionStateCallback;
 import com.sleepace.sdk.interfs.IDeviceManager;
 import com.sleepace.sdk.interfs.IResultCallback;
@@ -28,6 +29,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.Toast;
 
 public class MainActivity extends BaseActivity {
 	
@@ -103,6 +105,7 @@ public class MainActivity extends BaseActivity {
 		// TODO Auto-generated method stub
 		super.initListener();
 		mHelper.addConnectionStateCallback(stateCallback);
+		mHelper.addDeviceStatusListener(deviceStatusListener);
 		rgTab.setOnCheckedChangeListener(checkedChangeListener);
 	}
 
@@ -196,7 +199,25 @@ public class MainActivity extends BaseActivity {
 			// TODO Auto-generated method stub
 			SdkLog.log(TAG+" onStateChanged state:" + state);
 			if(state == CONNECTION_STATE.DISCONNECT){
-				
+				MainActivity.realtimeDataOpen = false;
+			}
+		}
+	};
+	
+	private DeviceStatusListener deviceStatusListener = new DeviceStatusListener() {
+		@Override
+		public void onStatusTriggered(final byte status, final byte statusValue) {
+			// TODO Auto-generated method stub
+			if(!isFinishing() && !isDestroyed()) {
+				runOnUiThread(new Runnable() {
+					public void run() {
+						if(status == DeviceStatusListener.STATUS_BREATH_PAUSE) {
+							Toast.makeText(MainActivity.this, R.string.notice_apnea, Toast.LENGTH_LONG).show();
+						}else if(status == DeviceStatusListener.STATUS_OUT_OF_BED) {
+							Toast.makeText(MainActivity.this, R.string.notice_leaving_bed, Toast.LENGTH_LONG).show();
+						}
+					}
+				});
 			}
 		}
 	};
@@ -234,6 +255,7 @@ public class MainActivity extends BaseActivity {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		mHelper.removeConnectionStateCallback(stateCallback);
+		mHelper.removeDeviceStatusListener(deviceStatusListener);
 	}
 	
 	public void showUpgradeDialog(){

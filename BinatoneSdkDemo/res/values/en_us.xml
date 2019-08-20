@@ -70,4 +70,8 @@
   <string name="obtain_mac_address">Obtain Mac Address</string>
   <string name="charging">Charging</string>
   <string name="initialization">Initialization</string>
+  <string name="leaving_bed_alert">Switch On Leaving Bed</string>
+  <string name="notice_leaving_bed">There is a leaving bed alarm, please pay attention immediately</string>
+  <string name="notice_apnea">There is a apnea alarm, please pay attention immediately</string>
+  <string name="Daily_Report">Daily Report</string>
 </resources>

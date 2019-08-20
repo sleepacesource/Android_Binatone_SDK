@@ -246,6 +246,31 @@
         </RelativeLayout>
 
         <include layout="@layout/divider_line" />
+        
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height" >
+
+            <TextView
+                android:id="@+id/label_outofbed_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/leaving_bed_alert"
+                android:textColor="@drawable/label_text_color"
+                android:textSize="@dimen/Title_2" />
+
+            <CheckBox
+                android:id="@+id/cb_outofbed_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@null"
+                android:button="@drawable/cb_switch_bg" />
+        </RelativeLayout>
+
+        <include layout="@layout/divider_line" />
 
         <TextView
             android:id="@+id/set_alarm_time_range"

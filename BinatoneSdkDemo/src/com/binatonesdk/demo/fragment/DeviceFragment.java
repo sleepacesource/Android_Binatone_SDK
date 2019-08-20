@@ -38,8 +38,8 @@ public class DeviceFragment extends BaseFragment {
 	private EditText etUserId;
 	private Button btnConnectDevice, btnDeviceName, btnDeviceId, btnPower, btnMac, btnVersion, btnUpgrade;
 	private TextView tvDeviceName, tvDeviceId, tvPower, tvMac, tvVersion;
-	private TextView tvLabelAlarmSwitch, tvSetAlarmTimeRange;
-	private CheckBox cbAlarmSwitch;
+	private TextView tvLabelAlarmSwitch, tvOutOfBedAlarm, tvSetAlarmTimeRange;
+	private CheckBox cbBreathPauseAlarm, cbOutOfBedAlarm;
 	private boolean upgrading = false;
 
 	@Override
@@ -70,7 +70,9 @@ public class DeviceFragment extends BaseFragment {
 		btnVersion = (Button) root.findViewById(R.id.btn_device_version);
 		btnUpgrade = (Button) root.findViewById(R.id.btn_upgrade_fireware);
 		tvLabelAlarmSwitch = (TextView) root.findViewById(R.id.label_alarm_switch);
-		cbAlarmSwitch = (CheckBox) root.findViewById(R.id.cb_alarm_switch);
+		tvOutOfBedAlarm = (TextView) root.findViewById(R.id.label_outofbed_switch);
+		cbBreathPauseAlarm = (CheckBox) root.findViewById(R.id.cb_alarm_switch);
+		cbOutOfBedAlarm = (CheckBox) root.findViewById(R.id.cb_outofbed_switch);
 		tvSetAlarmTimeRange = (TextView) root.findViewById(R.id.set_alarm_time_range);
 	}
 
@@ -87,7 +89,8 @@ public class DeviceFragment extends BaseFragment {
 		btnVersion.setOnClickListener(this);
 		btnUpgrade.setOnClickListener(this);
 		tvSetAlarmTimeRange.setOnClickListener(this);
-		cbAlarmSwitch.setOnCheckedChangeListener(checkedChangeListener);
+		cbBreathPauseAlarm.setOnCheckedChangeListener(checkedChangeListener);
+		cbOutOfBedAlarm.setOnCheckedChangeListener(checkedChangeListener);
 	}
 
 
@@ -97,8 +100,10 @@ public class DeviceFragment extends BaseFragment {
 		tvDeviceName.setText(MainActivity.deviceName);
 		tvDeviceId.setText(MainActivity.deviceId);
 		tvPower.setText(MainActivity.power);
+		tvMac.setText(MainActivity.mac);
 		tvVersion.setText(MainActivity.version);
-		cbAlarmSwitch.setEnabled(AlarmSettingActivity.alarmConfig.isEnable());
+		cbBreathPauseAlarm.setEnabled(AlarmSettingActivity.bpAlarmConfig.isEnable());
+		cbOutOfBedAlarm.setEnabled(AlarmSettingActivity.oobAlarmConfig.isEnable());
 	}
 	
 	@Override
@@ -139,16 +144,24 @@ public class DeviceFragment extends BaseFragment {
 		btnVersion.setEnabled(enable);
 		btnUpgrade.setEnabled(enable);
 		tvLabelAlarmSwitch.setEnabled(enable);
+		tvOutOfBedAlarm.setEnabled(enable);
 		tvSetAlarmTimeRange.setEnabled(enable);
-		cbAlarmSwitch.setEnabled(enable);
+		cbBreathPauseAlarm.setEnabled(enable);
+		cbOutOfBedAlarm.setEnabled(enable);
 	}
 	
 	private OnCheckedChangeListener checkedChangeListener = new OnCheckedChangeListener() {
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 			// TODO Auto-generated method stub
-			AlarmSettingActivity.alarmConfig.setEnable(isChecked);
-			getBinatoneHelper().setAlarm(AlarmSettingActivity.alarmConfig.isEnable(), AlarmSettingActivity.alarmConfig.getHour(), AlarmSettingActivity.alarmConfig.getMinute(), AlarmSettingActivity.alarmConfig.getDuration(), 3000, setAlarmCallback);
+			SdkLog.log(TAG+" onCheckedChanged buttonView:"+buttonView+",isChecked:" + isChecked);
+			if(buttonView == cbBreathPauseAlarm) {
+				AlarmSettingActivity.bpAlarmConfig.setEnable(isChecked);
+				getBinatoneHelper().setBreathPauseAlarm(AlarmSettingActivity.bpAlarmConfig.isEnable(), AlarmSettingActivity.bpAlarmConfig.getHour(), AlarmSettingActivity.bpAlarmConfig.getMinute(), AlarmSettingActivity.bpAlarmConfig.getDuration(), 3000, setAlarmCallback);
+			}else {
+				AlarmSettingActivity.oobAlarmConfig.setEnable(isChecked);
+				getBinatoneHelper().setOutOfBedAlarm(AlarmSettingActivity.oobAlarmConfig.isEnable(), AlarmSettingActivity.oobAlarmConfig.getHour(), AlarmSettingActivity.oobAlarmConfig.getMinute(), AlarmSettingActivity.oobAlarmConfig.getDuration(), 3000, setAlarmCallback);
+			}
 		}
 	};
 	
@@ -157,7 +170,13 @@ public class DeviceFragment extends BaseFragment {
 		public void onResultCallback(CallbackData<Void> cd) {
 			// TODO Auto-generated method stub
 			SdkLog.log(TAG+" onResultCallback " + cd);
-			if(cd.getCallbackType() == IMonitorManager.METHOD_ALARM_SET) {
+			if(cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_SET) {
+				if(cd.isSuccess()) {
+					
+				}else {
+					
+				}
+			}else if(cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_SET) {
 				if(cd.isSuccess()) {
 					
 				}else {
@@ -175,14 +194,27 @@ public class DeviceFragment extends BaseFragment {
 				return;
 			}
 			SdkLog.log(TAG+" onResultCallback " + cd);
-			if(cd.getCallbackType() == IMonitorManager.METHOD_ALARM_GET) {
+			if(cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_GET) {
 				if(cd.isSuccess()) {
-					AlarmSettingActivity.alarmConfig = cd.getResult();
+					AlarmSettingActivity.bpAlarmConfig = cd.getResult();
 					mActivity.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-							cbAlarmSwitch.setChecked(AlarmSettingActivity.alarmConfig.isEnable());
+							cbBreathPauseAlarm.setChecked(AlarmSettingActivity.bpAlarmConfig.isEnable());
+						}
+					});
+				}else {
+					
+				}
+			}else if(cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_GET) {
+				if(cd.isSuccess()) {
+					AlarmSettingActivity.oobAlarmConfig = cd.getResult();
+					mActivity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							cbOutOfBedAlarm.setChecked(AlarmSettingActivity.oobAlarmConfig.isEnable());
 						}
 					});
 				}else {
@@ -225,7 +257,9 @@ public class DeviceFragment extends BaseFragment {
 							mActivity.hideUpgradeDialog();
 //							tvUpgrade.setText(R.string.update_completed);
 						}
-						//getBinatoneHelper().getAlarmConfig(3000, getAlarmCallback);
+						
+						getBinatoneHelper().getBreathPauseAlarm(3000, getAlarmCallback);
+						getBinatoneHelper().getOutOfBedAlarm(3000, getAlarmCallback);
 					}
 				}
 			});
@@ -259,7 +293,7 @@ public class DeviceFragment extends BaseFragment {
 					}
 					
 					int uid = Integer.valueOf(strId);
-					if(uid <= 0 ) {
+					if(uid <= 0 || strId.startsWith("0") ) {
 						Toast.makeText(mActivity, R.string.userid_error, Toast.LENGTH_SHORT).show();
 						return;
 					}
@@ -324,10 +358,16 @@ public class DeviceFragment extends BaseFragment {
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
+							SdkLog.log(TAG+" getBattery cd:" + cd);
 							if(cd.isSuccess()){
 								BatteryBean bean =  cd.getResult();
-								MainActivity.power = bean.getQuantity()+"%";
-								tvPower.setText(MainActivity.power);
+								if(bean.getChargingState() == 1) {
+									MainActivity.power = getString(R.string.charging);
+									tvPower.setText(MainActivity.power);
+								}else {
+									MainActivity.power = bean.getQuantity()+"%";
+									tvPower.setText(MainActivity.power);
+								}
 							}
 						}
 					});
@@ -404,12 +444,21 @@ public class DeviceFragment extends BaseFragment {
 		     * 6、算法优化，离床优化，心率、呼吸率优化
 		     * 7、优化设备没电时充电，充电指示灯不指示的问题
 			 */
-			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20181207_1.29_beta.des");
+//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20181207_1.29_beta.des");
+//			FirmwareBean bean = new FirmwareBean();
+//			bean.is = is;
+//			bean.crcBin = 921413085l;
+//			bean.crcDes = 587897703l;
+			
+			/**
+			 * v1.41更新如下：
+			 * 增加报警功能
+			 */
+			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190806_1.41_beta.des");
 			FirmwareBean bean = new FirmwareBean();
 			bean.is = is;
-			bean.crcBin = 921413085l;
-			bean.crcDes = 587897703l;
-			
+			bean.crcBin = 2707569021l;
+			bean.crcDes = 1671192570l;
 			return bean;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
