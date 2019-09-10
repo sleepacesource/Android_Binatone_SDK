@@ -454,11 +454,17 @@ public class DeviceFragment extends BaseFragment {
 			 * v1.41更新如下：
 			 * 增加报警功能
 			 */
-			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190806_1.41_beta.des");
+//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190806_1.41_beta.des");
+//			FirmwareBean bean = new FirmwareBean();
+//			bean.is = is;
+//			bean.crcBin = 2707569021l;
+//			bean.crcDes = 1671192570l;
+			
+			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190814_1.42_beta.des");
 			FirmwareBean bean = new FirmwareBean();
 			bean.is = is;
-			bean.crcBin = 2707569021l;
-			bean.crcDes = 1671192570l;
+			bean.crcBin = 2224788989l;
+			bean.crcDes = 1261788337l;
 			return bean;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
