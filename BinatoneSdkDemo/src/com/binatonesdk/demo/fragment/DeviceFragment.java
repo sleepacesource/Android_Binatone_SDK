@@ -460,11 +460,17 @@ public class DeviceFragment extends BaseFragment {
 //			bean.crcBin = 2707569021l;
 //			bean.crcDes = 1671192570l;
 			
-			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190814_1.42_beta.des");
+//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190814_1.42_beta.des");
+//			FirmwareBean bean = new FirmwareBean();
+//			bean.is = is;
+//			bean.crcBin = 2224788989l;
+//			bean.crcDes = 1261788337l;
+			
+			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20191008_1.43(V1.1.4)_Debug.des");
 			FirmwareBean bean = new FirmwareBean();
 			bean.is = is;
-			bean.crcBin = 2224788989l;
-			bean.crcDes = 1261788337l;
+			bean.crcBin = 846064980l;
+			bean.crcDes = 3663185237l;
 			return bean;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

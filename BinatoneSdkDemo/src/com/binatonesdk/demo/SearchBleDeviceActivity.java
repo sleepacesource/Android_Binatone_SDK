@@ -12,6 +12,7 @@ import com.sleepace.sdk.binatone.BinatoneHelper;
 import com.sleepace.sdk.binatone.domain.DeviceInfo;
 import com.sleepace.sdk.constant.StatusCode;
 import com.sleepace.sdk.domain.BleDevice;
+import com.sleepace.sdk.interfs.IDeviceManager;
 import com.sleepace.sdk.interfs.IResultCallback;
 import com.sleepace.sdk.manager.CallbackData;
 import com.sleepace.sdk.manager.ble.BleHelper;
@@ -145,6 +146,24 @@ public class SearchBleDeviceActivity extends BaseActivity {
         	stopScan();
         	device = adapter.getItem(position);
         	progressDialog.show();
+        	
+        	mHelper.setMtu(509, new IResultCallback<Integer>() {
+    			@Override
+    			public void onResultCallback(CallbackData<Integer> cd) {
+    				// TODO Auto-generated method stub
+    				SdkLog.log(TAG+" setMtu cd:" + cd);
+    				if(cd.getCallbackType() == IDeviceManager.METHOD_SET_MTU) {
+    					if(cd.isSuccess()) {
+    						//set mtu success
+    						int mtu = cd.getResult();
+    						SdkLog.log(TAG+" setMtu success mut:" + mtu);
+    					}else {
+    						//set mtu fail
+    					}
+    				}
+    			}
+    		});
+        	
         	int timestamp = (int) (System.currentTimeMillis() / 1000 & 0xFFFFFFFF);
         	TimeZone tz = TimeZone.getDefault();
         	int timezone = tz.getRawOffset() / 1000;
