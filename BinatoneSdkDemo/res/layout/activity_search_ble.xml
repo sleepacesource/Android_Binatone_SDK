@@ -62,12 +62,12 @@
         <ListView
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:cacheColorHint="@color/transparent"
             android:scrollbars="none" 
             android:dividerHeight="1dp"
            	android:divider="@color/black_10"
+           	android:footerDividersEnabled="true"
             />
     </LinearLayout>
 

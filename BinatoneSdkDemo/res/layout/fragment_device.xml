@@ -35,6 +35,21 @@
             android:textColorHint="@color/black_30"
             android:textSize="@dimen/Title_3" />
 
+        <TextView
+            android:id="@+id/tv_tips_user_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/tips_user_device"
+            android:textColor="@color/COLOR_4"
+            android:textSize="@dimen/Title_4" />
+
+        <LinearLayout
+            android:id="@+id/layout_device_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
         <Button
             android:id="@+id/btn_connect_device"
             style="@style/common_bt"
@@ -136,12 +151,13 @@
                 android:textColor="@color/COLOR_3"
                 android:textSize="@dimen/Title_3" />
         </LinearLayout>
-        
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/btn_height"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            android:visibility="gone" >
 
             <Button
                 android:id="@+id/btn_get_mac"
@@ -252,6 +268,34 @@
             android:layout_height="@dimen/page_item_height" >
 
             <TextView
+                android:id="@+id/tv_apnea_alarm_time_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
+                android:textColor="@color/COLOR_4"
+                android:textSize="@dimen/Title_6" />
+
+            <TextView
+                android:id="@+id/set_alarm_time_range"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/page_item_height"
+                android:layout_centerVertical="true"
+                android:drawableRight="@drawable/ic_right"
+                android:gravity="left|center_vertical"
+                android:text="@string/set_alert_switch"
+                android:textColor="@drawable/label_text_color"
+                android:textSize="@dimen/Title_2" />
+        </RelativeLayout>
+        
+        <include layout="@layout/divider_line" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/page_item_height" >
+
+            <TextView
                 android:id="@+id/label_outofbed_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -272,16 +316,31 @@
 
         <include layout="@layout/divider_line" />
 
-        <TextView
-            android:id="@+id/set_alarm_time_range"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/page_item_height"
-            android:layout_centerVertical="true"
-            android:drawableRight="@drawable/ic_right"
-            android:gravity="left|center_vertical"
-            android:text="@string/set_alert_switch"
-            android:textColor="@drawable/label_text_color"
-            android:textSize="@dimen/Title_2" />
+            android:layout_height="@dimen/page_item_height" >
+
+            <TextView
+                android:id="@+id/tv_outofbed_alarm_time_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
+                android:textColor="@color/COLOR_4"
+                android:textSize="@dimen/Title_6" />
+
+            <TextView
+                android:id="@+id/set_outofbed_alarm_time_range"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/page_item_height"
+                android:layout_centerVertical="true"
+                android:drawableRight="@drawable/ic_right"
+                android:gravity="left|center_vertical"
+                android:text="@string/set_alert_switch"
+                android:textColor="@drawable/label_text_color"
+                android:textSize="@dimen/Title_2" />
+        </RelativeLayout>
 
         <include layout="@layout/divider_line" />
     </LinearLayout>

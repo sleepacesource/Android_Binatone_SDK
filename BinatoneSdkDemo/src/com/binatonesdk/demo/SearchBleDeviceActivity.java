@@ -57,7 +57,7 @@ public class SearchBleDeviceActivity extends BaseActivity {
     private BleAdapter adapter;
 
     private final Handler mHandler = new Handler();
-	private int scanTime = 6 * 1000;
+	private int scanTime = 5 * 1000;
 	private boolean mScanning;
     
     private RotateAnimation animation;
@@ -105,6 +105,7 @@ public class SearchBleDeviceActivity extends BaseActivity {
         tvTitle.setText(R.string.search_ble);
         adapter = new BleAdapter();
         listView.setAdapter(adapter);
+        listView.addFooterView(new View(this));  
         
         progressDialog = new ProgressDialog(this);
         progressDialog.setIcon(android.R.drawable.ic_dialog_info);
@@ -146,10 +147,9 @@ public class SearchBleDeviceActivity extends BaseActivity {
         	stopScan();
         	device = adapter.getItem(position);
         	progressDialog.show();
-        	
-        	mHelper.setMtu(509, new IResultCallback<Integer>() {
+        	mHelper.setMtu(device.getAddress(), 509, new IResultCallback<Integer>() {
     			@Override
-    			public void onResultCallback(CallbackData<Integer> cd) {
+    			public void onResultCallback(IDeviceManager manager, CallbackData<Integer> cd) {
     				// TODO Auto-generated method stub
     				SdkLog.log(TAG+" setMtu cd:" + cd);
     				if(cd.getCallbackType() == IDeviceManager.METHOD_SET_MTU) {
@@ -175,7 +175,7 @@ public class SearchBleDeviceActivity extends BaseActivity {
     
     private IResultCallback<DeviceInfo> loginCallback = new IResultCallback<DeviceInfo>() {
 		@Override
-		public void onResultCallback(final CallbackData<DeviceInfo> cd) {
+		public void onResultCallback(IDeviceManager manager, final CallbackData<DeviceInfo> cd) {
 			// TODO Auto-generated method stub
 			if(!ActivityUtil.isActivityAlive(mContext)) {
 				return;
@@ -185,10 +185,11 @@ public class SearchBleDeviceActivity extends BaseActivity {
 				public void run() {
 					progressDialog.dismiss();
 					if(cd.isSuccess()) {
-						MainActivity.deviceName = device.getDeviceName();
-						MainActivity.mac = device.getAddress();
-						MainActivity.deviceId = cd.getResult().getDeviceId();
-						MainActivity.version = cd.getResult().getHardwareVersion();
+						DeviceInfo deviceInfo = cd.getResult();
+						device.setDeviceId(deviceInfo.getDeviceId());
+						device.setVersionName(deviceInfo.getHardwareVersion());
+						MainActivity.addDevice(device);
+						MainActivity.setCurDevice(device);
 						finish();
 					} else {
 						if(cd.getStatus() == StatusCode.NOT_ENABLE) {
@@ -345,8 +346,8 @@ public class SearchBleDeviceActivity extends BaseActivity {
 		            	deviceName = deviceName.trim();
 		            }
 		            
-		            //if(!TextUtils.isEmpty(modelName) && !TextUtils.isEmpty(deviceName) && deviceName.startsWith("MBP89SN")){
-		            if(!TextUtils.isEmpty(modelName) && !TextUtils.isEmpty(deviceName)){
+		            if(!TextUtils.isEmpty(deviceName) && deviceName.startsWith("MBP")){
+//		            if(!TextUtils.isEmpty(modelName) && !TextUtils.isEmpty(deviceName)){
 		            	SdkLog.log(TAG+" onLeScan modelName:" + modelName+",deviceName:" + deviceName);
 		            	BleDevice ble = new BleDevice();
 		            	ble.setModelName(modelName);

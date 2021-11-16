@@ -18,7 +18,7 @@
   <string name="obtain_firmware">Obtain Firmware Version</string>
   <string name="fireware_update">Firmware Update</string>
   <string name="apnea_alert">Switch On Apnea Alert</string>
-  <string name="set_alert_switch">Set the Alert Effective Time Range</string>
+  <string name="set_alert_switch">Effective time range </string>
   <string name="search_ble">Search Bluetooth Device</string>
   <string name="select_id">Select Device ID (keep phone close to device)</string>
   <string name="click_refresh">Cannot find device? Click to refresh</string>
@@ -74,4 +74,16 @@
   <string name="notice_leaving_bed">There is a leaving bed alarm, please pay attention immediately</string>
   <string name="notice_apnea">There is a apnea alarm, please pay attention immediately</string>
   <string name="Daily_Report">Daily Report</string>
+  
+  
+  <string name="tips_user_device">The device bound under the userid</string>
+  <string name="tips_no_report">No report</string>
+  <string name="breath_pause">Apnea</string>
+  <string name="out_of_bed">Out of bed</string>
+  <string name="nothing">Nothing</string>
+  <string name="out_of_bed_time">Out of bed time</string>
+  <string name="breath_pause_time">Pause time</string>
+  <string name="duration">Duration</string>
+  <string name="seconds">Second</string>
+    <string name="low_battery">Low battery</string>
 </resources>

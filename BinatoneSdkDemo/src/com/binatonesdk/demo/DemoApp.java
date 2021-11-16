@@ -26,7 +26,10 @@ public class DemoApp extends Application {
         super.onCreate();
         instance = this;
         CrashHandler.getInstance().init(this);
-        SdkLog.setLogEnable(true);
+//        String logDir = getExternalFilesDir("log").getPath();
+//        SdkLog.setLogDir(logDir);
+//        SdkLog.setSaveLog(true, "opt.txt");
+//        SdkLog.setLogEnable(true);
     }
 
     @Override

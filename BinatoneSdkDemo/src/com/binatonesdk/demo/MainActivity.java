@@ -1,17 +1,19 @@
 package com.binatonesdk.demo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 import com.binatonesdk.demo.fragment.DeviceFragment;
 import com.binatonesdk.demo.fragment.HistoryDataFragment;
 import com.binatonesdk.demo.fragment.RealtimeDataFragment;
 import com.sleepace.sdk.binatone.BinatoneHelper;
 import com.sleepace.sdk.binatone.interfs.DeviceStatusListener;
+import com.sleepace.sdk.domain.BleDevice;
 import com.sleepace.sdk.interfs.IConnectionStateCallback;
 import com.sleepace.sdk.interfs.IDeviceManager;
-import com.sleepace.sdk.interfs.IResultCallback;
 import com.sleepace.sdk.manager.CONNECTION_STATE;
-import com.sleepace.sdk.manager.CallbackData;
 import com.sleepace.sdk.util.SdkLog;
 
 import android.Manifest;
@@ -39,9 +41,51 @@ public class MainActivity extends BaseActivity {
 	private BinatoneHelper mHelper;
 	private ProgressDialog upgradeDialog;
 	
-	//缓存数据
-	public static String deviceName, deviceId, mac, power, version;
-	public static boolean realtimeDataOpen;
+	private static final ArrayList<BleDevice> deviceList = new ArrayList<BleDevice>();
+	private static BleDevice curDevice = null;
+	private static final HashMap<String, String> devicePower = new HashMap<String, String>();
+	public static final HashMap<String, Boolean> deviceRealtimeDataOpen = new HashMap<String, Boolean>();
+	
+	
+	public static void addDevice(BleDevice device) {
+		if(!deviceList.contains(device)) {
+			deviceList.add(device);
+		}
+	}
+	
+	public static void deleteDevice(BleDevice device) {
+		deviceList.remove(device);
+		if(curDevice == device) {
+			if(deviceList.size() > 0) {
+				curDevice = deviceList.get(0);
+			}else {
+				curDevice = null;
+			}
+		}
+	}
+	
+	public static List<BleDevice> getDeviceList() {
+		return deviceList;
+	}
+	
+	public static void setCurDevice(BleDevice device) {
+		curDevice = device;
+	}
+	
+	public static BleDevice getCurDevice() {
+		return curDevice;
+	}
+	
+	public static String getDevicePower() {
+		if(curDevice != null) {
+			return devicePower.get(curDevice.getAddress());
+		}
+		return "";
+	}
+	
+	public static void setDevicePower(String address, String power) {
+		devicePower.put(address, power);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -177,7 +221,7 @@ public class MainActivity extends BaseActivity {
 	
 	
 	public void exit(){
-		mHelper.release();
+//		mHelper.release();
 		clearCache();
 //		Intent intent = new Intent(this, SplashActivity.class);
 //		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -187,11 +231,7 @@ public class MainActivity extends BaseActivity {
 	
 	
 	private void clearCache(){
-		deviceName = null;
-		deviceId = null;
-		power = null;
-		mac = null;
-		version = null;
+		
 	}
 	
 	private IConnectionStateCallback stateCallback = new IConnectionStateCallback() {
@@ -200,14 +240,14 @@ public class MainActivity extends BaseActivity {
 			// TODO Auto-generated method stub
 			SdkLog.log(TAG+" onStateChanged state:" + state);
 			if(state == CONNECTION_STATE.DISCONNECT){
-				MainActivity.realtimeDataOpen = false;
+				//deviceRealtimeDataOpen.put(address, false);
 			}
 		}
 	};
 	
 	private DeviceStatusListener deviceStatusListener = new DeviceStatusListener() {
 		@Override
-		public void onStatusTriggered(final byte status, final byte statusValue) {
+		public void onStatusTriggered(final String address, final byte status, final byte statusValue) {
 			// TODO Auto-generated method stub
 			if(!isFinishing() && !isDestroyed()) {
 				runOnUiThread(new Runnable() {

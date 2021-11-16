@@ -6,6 +6,7 @@ import com.binatonesdk.demo.view.SelectTimeDialog;
 import com.binatonesdk.demo.view.SelectTimeDialog.TimeSelectedListener;
 import com.sleepace.sdk.binatone.BinatoneHelper;
 import com.sleepace.sdk.binatone.domain.AlarmConfig;
+import com.sleepace.sdk.interfs.IDeviceManager;
 import com.sleepace.sdk.interfs.IMonitorManager;
 import com.sleepace.sdk.interfs.IResultCallback;
 import com.sleepace.sdk.manager.CallbackData;
@@ -32,27 +33,46 @@ public class AlarmSettingActivity extends BaseActivity {
 	
 	private boolean isStartTime;
 	private byte sHour, sMin, eHour, eMin;
+	private String type;
+	
+	private boolean isBreathPauseConfig() {
+		if("breathPause".equals(type)) {
+			return true;
+		}
+		return false;
+	}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mHelper = BinatoneHelper.getInstance(this);
-        sHour = (byte) bpAlarmConfig.getHour();
-        sMin = (byte) bpAlarmConfig.getMinute();
-        Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.HOUR_OF_DAY, sHour);
-		calendar.set(Calendar.MINUTE, sMin);
-		calendar.add(Calendar.MINUTE, bpAlarmConfig.getDuration());
-		eHour = (byte) calendar.get(Calendar.HOUR_OF_DAY);
-		eMin = (byte) calendar.get(Calendar.MINUTE);
-		SdkLog.log(TAG+" onCreate alarmConfig:" + bpAlarmConfig+",h:"+sHour+",m:"+sMin+",eh:"+eHour+",em:"+eMin);
+        type = getIntent().getStringExtra("type");
+        if(isBreathPauseConfig()) {
+        	sHour = (byte) bpAlarmConfig.getHour();
+        	sMin = (byte) bpAlarmConfig.getMinute();
+        	Calendar calendar = Calendar.getInstance();
+        	calendar.set(Calendar.HOUR_OF_DAY, sHour);
+        	calendar.set(Calendar.MINUTE, sMin);
+        	calendar.add(Calendar.MINUTE, bpAlarmConfig.getDuration());
+        	eHour = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        	eMin = (byte) calendar.get(Calendar.MINUTE);
+        }else {
+        	sHour = (byte) oobAlarmConfig.getHour();
+        	sMin = (byte) oobAlarmConfig.getMinute();
+        	Calendar calendar = Calendar.getInstance();
+        	calendar.set(Calendar.HOUR_OF_DAY, sHour);
+        	calendar.set(Calendar.MINUTE, sMin);
+        	calendar.add(Calendar.MINUTE, oobAlarmConfig.getDuration());
+        	eHour = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        	eMin = (byte) calendar.get(Calendar.MINUTE);
+        }
         
+		SdkLog.log(TAG+" onCreate type:" + type+",h:"+sHour+",m:"+sMin+",eh:"+eHour+",em:"+eMin);
         setContentView(R.layout.activity_autostart);
         findView();
         initListener();
         initUI();
     }
-
 
     public void findView() {
     	super.findView();
@@ -140,43 +160,49 @@ public class AlarmSettingActivity extends BaseActivity {
     			time = (int) ((cal2.getTimeInMillis() - cal1.getTimeInMillis()) / 1000);
     		}
     		
-    		bpAlarmConfig.setHour(sHour);
-    		bpAlarmConfig.setMinute(sMin);
-    		bpAlarmConfig.setDuration((short) (time / 60));
+    		if(isBreathPauseConfig()) {
+    			bpAlarmConfig.setHour(sHour);
+    			bpAlarmConfig.setMinute(sMin);
+    			bpAlarmConfig.setDuration((short) (time / 60));
+    		}else {
+    			oobAlarmConfig.setHour(sHour);
+    			oobAlarmConfig.setMinute(sMin);
+    			oobAlarmConfig.setDuration((short) (time / 60));
+    		}
     		
-    		oobAlarmConfig.setHour(sHour);
-    		oobAlarmConfig.setMinute(sMin);
-    		oobAlarmConfig.setDuration((short) (time / 60));
-    		
-    		mHelper.setBreathPauseAlarm(bpAlarmConfig.isEnable(), bpAlarmConfig.getHour(), bpAlarmConfig.getMinute(), bpAlarmConfig.getDuration(), 3000, new IResultCallback<Void>() {
-    			@Override
-    			public void onResultCallback(CallbackData<Void> cd) {
-    				// TODO Auto-generated method stub
-    				SdkLog.log(TAG+" setBreathPauseAlarm ResultCallback " + cd);
-    				if(cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_SET) {
-    					if(cd.isSuccess()) {
-    						//finish();
-    					}else {
-    						
+    		if(MainActivity.getCurDevice() != null) {
+    			if(isBreathPauseConfig()) {
+    				mHelper.setBreathPauseAlarm(MainActivity.getCurDevice().getAddress(), bpAlarmConfig.isEnable(), bpAlarmConfig.getHour(), bpAlarmConfig.getMinute(), bpAlarmConfig.getDuration(), 3000, new IResultCallback<Void>() {
+    					@Override
+    					public void onResultCallback(IDeviceManager manager, CallbackData<Void> cd) {
+    						// TODO Auto-generated method stub
+    						SdkLog.log(TAG+" setBreathPauseAlarm ResultCallback " + cd);
+    						if(cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_SET) {
+    							if(cd.isSuccess()) {
+    								finish();
+    							}else {
+    								
+    							}
+    						}
     					}
-    					
-    					mHelper.setOutOfBedAlarm(oobAlarmConfig.isEnable(), oobAlarmConfig.getHour(), oobAlarmConfig.getMinute(), oobAlarmConfig.getDuration(), 3000, new IResultCallback<Void>() {
-    		    			@Override
-    		    			public void onResultCallback(CallbackData<Void> cd) {
-    		    				// TODO Auto-generated method stub
-    		    				SdkLog.log(TAG+" setOutOfBedAlarm onResultCallback " + cd);
-    		    				if(cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_SET) {
-    		    					if(cd.isSuccess()) {
-    		    						finish();
-    		    					}else {
-    		    						
-    		    					}
-    		    				}
-    		    			}
-    		    		});
-    				}
+    				});
+    			}else {
+    				mHelper.setOutOfBedAlarm(MainActivity.getCurDevice().getAddress(), oobAlarmConfig.isEnable(), oobAlarmConfig.getHour(), oobAlarmConfig.getMinute(), oobAlarmConfig.getDuration(), 3000, new IResultCallback<Void>() {
+						@Override
+						public void onResultCallback(IDeviceManager manager, CallbackData<Void> cd) {
+							// TODO Auto-generated method stub
+							SdkLog.log(TAG+" setOutOfBedAlarm onResultCallback " + cd);
+							if(cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_SET) {
+								if(cd.isSuccess()) {
+									finish();
+								}else {
+									
+								}
+							}
+						}
+					});
     			}
-    		});
+    		}
     	}
     }
     

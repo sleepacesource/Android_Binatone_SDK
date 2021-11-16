@@ -2,14 +2,17 @@ package com.binatonesdk.demo.fragment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 
 import com.binatonesdk.demo.AlarmSettingActivity;
 import com.binatonesdk.demo.DemoApp;
 import com.binatonesdk.demo.MainActivity;
 import com.binatonesdk.demo.R;
 import com.binatonesdk.demo.SearchBleDeviceActivity;
+import com.binatonesdk.demo.util.BleUtil;
 import com.sleepace.sdk.binatone.domain.AlarmConfig;
 import com.sleepace.sdk.binatone.domain.BatteryBean;
+import com.sleepace.sdk.domain.BleDevice;
 import com.sleepace.sdk.interfs.IConnectionStateCallback;
 import com.sleepace.sdk.interfs.IDeviceManager;
 import com.sleepace.sdk.interfs.IMonitorManager;
@@ -31,31 +34,38 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class DeviceFragment extends BaseFragment {
 	private EditText etUserId;
+	private View vUserDeviceTips, vSetBreathPauseAlarmTime, vSetOutOfBedAlarmTime;
 	private Button btnConnectDevice, btnDeviceName, btnDeviceId, btnPower, btnMac, btnVersion, btnUpgrade;
 	private TextView tvDeviceName, tvDeviceId, tvPower, tvMac, tvVersion;
-	private TextView tvLabelAlarmSwitch, tvOutOfBedAlarm, tvSetAlarmTimeRange;
+	private TextView tvLabelAlarmSwitch, tvOutOfBedAlarm;
 	private CheckBox cbBreathPauseAlarm, cbOutOfBedAlarm;
 	private boolean upgrading = false;
+	private LinearLayout deviceListLayout;
+	private TextView tvBreathPauseAlarmTime, tvOutOfBedTime;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View root = inflater.inflate(R.layout.fragment_device, null);
-//		SdkLog.log(TAG+" onCreateView-----------");
+		// SdkLog.log(TAG+" onCreateView-----------");
 		findView(root);
 		initListener();
 		initUI();
 		return root;
 	}
-	
+
 	protected void findView(View root) {
 		// TODO Auto-generated method stub
 		super.findView(root);
+		vUserDeviceTips = root.findViewById(R.id.tv_tips_user_device);
+		deviceListLayout = root.findViewById(R.id.layout_device_list);
 		etUserId = root.findViewById(R.id.et_userid);
 		tvDeviceName = (TextView) root.findViewById(R.id.tv_device_name);
 		tvDeviceId = (TextView) root.findViewById(R.id.tv_device_id);
@@ -73,14 +83,16 @@ public class DeviceFragment extends BaseFragment {
 		tvOutOfBedAlarm = (TextView) root.findViewById(R.id.label_outofbed_switch);
 		cbBreathPauseAlarm = (CheckBox) root.findViewById(R.id.cb_alarm_switch);
 		cbOutOfBedAlarm = (CheckBox) root.findViewById(R.id.cb_outofbed_switch);
-		tvSetAlarmTimeRange = (TextView) root.findViewById(R.id.set_alarm_time_range);
+		vSetBreathPauseAlarmTime = (TextView) root.findViewById(R.id.set_alarm_time_range);
+		vSetOutOfBedAlarmTime = (TextView) root.findViewById(R.id.set_outofbed_alarm_time_range);
+		tvBreathPauseAlarmTime = (TextView) root.findViewById(R.id.tv_apnea_alarm_time_range);
+		tvOutOfBedTime = (TextView) root.findViewById(R.id.tv_outofbed_alarm_time_range);
 	}
-
 
 	protected void initListener() {
 		// TODO Auto-generated method stub
 		super.initListener();
-		getBinatoneHelper().addConnectionStateCallback(stateCallback);
+		getDeviceHelper().addConnectionStateCallback(stateCallback);
 		btnConnectDevice.setOnClickListener(this);
 		btnDeviceName.setOnClickListener(this);
 		btnDeviceId.setOnClickListener(this);
@@ -88,55 +100,132 @@ public class DeviceFragment extends BaseFragment {
 		btnMac.setOnClickListener(this);
 		btnVersion.setOnClickListener(this);
 		btnUpgrade.setOnClickListener(this);
-		tvSetAlarmTimeRange.setOnClickListener(this);
+		vSetBreathPauseAlarmTime.setOnClickListener(this);
+		vSetOutOfBedAlarmTime.setOnClickListener(this);
 		cbBreathPauseAlarm.setOnCheckedChangeListener(checkedChangeListener);
 		cbOutOfBedAlarm.setOnCheckedChangeListener(checkedChangeListener);
 	}
 
-
 	protected void initUI() {
 		// TODO Auto-generated method stub
 		mActivity.setTitle(R.string.device);
-		tvDeviceName.setText(MainActivity.deviceName);
-		tvDeviceId.setText(MainActivity.deviceId);
-		tvPower.setText(MainActivity.power);
-		tvMac.setText(MainActivity.mac);
-		tvVersion.setText(MainActivity.version);
+		etUserId.setText("1");
+		initDeviceName();
+		initDeviceId();
+		initPower();
+		initMac();
+		initVersion();
 		cbBreathPauseAlarm.setEnabled(AlarmSettingActivity.bpAlarmConfig.isEnable());
 		cbOutOfBedAlarm.setEnabled(AlarmSettingActivity.oobAlarmConfig.isEnable());
 	}
-	
+
 	@Override
 	public void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		boolean isConnected = getBinatoneHelper().isConnected();
+		SdkLog.log(TAG + " onResume------------");
+		initDeviceList();
+	}
+
+	private void initDeviceName() {
+		if (MainActivity.getCurDevice() != null) {
+			tvDeviceName.setText(MainActivity.getCurDevice().getDeviceName());
+		} else {
+			tvDeviceName.setText("");
+		}
+	}
+
+	private void initDeviceId() {
+		if (MainActivity.getCurDevice() != null) {
+			tvDeviceId.setText(MainActivity.getCurDevice().getDeviceId());
+		} else {
+			tvDeviceId.setText("");
+		}
+	}
+
+	private void initPower() {
+		tvPower.setText(MainActivity.getDevicePower());
+	}
+
+	private void initMac() {
+		if (MainActivity.getCurDevice() != null) {
+			tvMac.setText(MainActivity.getCurDevice().getAddress());
+		} else {
+			tvMac.setText("");
+		}
+	}
+
+	private void initVersion() {
+		if (MainActivity.getCurDevice() != null) {
+			tvVersion.setText(MainActivity.getCurDevice().getVersionName());
+		} else {
+			tvVersion.setText("");
+		}
+	}
+
+	private void initDeviceList() {
+		if (MainActivity.getDeviceList().size() > 0) {
+			vUserDeviceTips.setVisibility(View.VISIBLE);
+		} else {
+			vUserDeviceTips.setVisibility(View.GONE);
+		}
+		deviceListLayout.removeAllViews();
+		for (int i = 0; i < MainActivity.getDeviceList().size(); i++) {
+			final BleDevice device = MainActivity.getDeviceList().get(i);
+			final View itemView = LayoutInflater.from(mActivity).inflate(R.layout.list_device_item, null);
+			TextView tv = itemView.findViewById(R.id.tv_name);
+			tv.setText(getString(R.string.device) + (MainActivity.getDeviceList().size() - i) + ":" + device.getDeviceName());
+			ImageView ivDel = itemView.findViewById(R.id.iv_del);
+			ivDel.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					getDeviceHelper().disconnect(device.getAddress());
+					if (MainActivity.getCurDevice() == device) {
+						clearDeviceInfo();
+					}
+					MainActivity.deleteDevice(device);
+					initDeviceList();
+				}
+			});
+
+			itemView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					if (MainActivity.getCurDevice() != device) {
+						MainActivity.setCurDevice(device);
+						initDeviceList();
+					}
+				}
+			});
+
+			if (MainActivity.getCurDevice() == device) {
+				tv.setTextColor(getResources().getColor(R.color.COLOR_1));
+			} else {
+				tv.setTextColor(getResources().getColor(R.color.COLOR_4));
+			}
+			deviceListLayout.addView(itemView, 0);
+		}
+
+		clearDeviceInfo();
+		boolean isConnected = false;
+		if (MainActivity.getCurDevice() != null) {
+			isConnected = getDeviceHelper().isConnected(MainActivity.getCurDevice().getAddress());
+		}
 		initPageState(isConnected);
 	}
-	
+
 	private void initPageState(boolean isConnected) {
-		initBtnConnectState(isConnected);
 		setPageEnable(isConnected);
-		if(!isConnected) {
-			tvDeviceName.setText(null);
-			tvDeviceId.setText(null);
-			tvPower.setText(null);
-			tvVersion.setText(null);
-			tvMac.setText(null);
-		}
-	}
-	
-	private void initBtnConnectState(boolean isConnected) {
-		if(isConnected) {
-			btnConnectDevice.setText(R.string.disconnect);
-			btnConnectDevice.setTag("disconnect");
+		if (!isConnected) {
+			clearDeviceInfo();
 		}else {
-			btnConnectDevice.setText(R.string.connect_device);
-			btnConnectDevice.setTag("connect");
+			getDeviceHelper().getBreathPauseAlarm(MainActivity.getCurDevice().getAddress(), 3000, getAlarmCallback);
 		}
 	}
-	
-	private void setPageEnable(boolean enable){
+
+	private void setPageEnable(boolean enable) {
 		btnDeviceName.setEnabled(enable);
 		btnDeviceId.setEnabled(enable);
 		btnPower.setEnabled(enable);
@@ -145,335 +234,353 @@ public class DeviceFragment extends BaseFragment {
 		btnUpgrade.setEnabled(enable);
 		tvLabelAlarmSwitch.setEnabled(enable);
 		tvOutOfBedAlarm.setEnabled(enable);
-		tvSetAlarmTimeRange.setEnabled(enable);
+		vSetBreathPauseAlarmTime.setEnabled(enable);
 		cbBreathPauseAlarm.setEnabled(enable);
 		cbOutOfBedAlarm.setEnabled(enable);
 	}
-	
+
+	private void clearDeviceInfo() {
+		tvDeviceName.setText("");
+		tvDeviceId.setText("");
+		tvPower.setText("");
+		tvMac.setText("");
+		tvVersion.setText("");
+		tvBreathPauseAlarmTime.setText("");
+		tvOutOfBedTime.setText("");
+	}
+
 	private OnCheckedChangeListener checkedChangeListener = new OnCheckedChangeListener() {
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 			// TODO Auto-generated method stub
-			SdkLog.log(TAG+" onCheckedChanged buttonView:"+buttonView+",isChecked:" + isChecked);
-			if(buttonView == cbBreathPauseAlarm) {
+			SdkLog.log(TAG + " onCheckedChanged buttonView:" + buttonView + ",isChecked:" + isChecked);
+			if (buttonView == cbBreathPauseAlarm) {
 				AlarmSettingActivity.bpAlarmConfig.setEnable(isChecked);
-				getBinatoneHelper().setBreathPauseAlarm(AlarmSettingActivity.bpAlarmConfig.isEnable(), AlarmSettingActivity.bpAlarmConfig.getHour(), AlarmSettingActivity.bpAlarmConfig.getMinute(), AlarmSettingActivity.bpAlarmConfig.getDuration(), 3000, setAlarmCallback);
-			}else {
+				if (MainActivity.getCurDevice() != null) {
+					getDeviceHelper().setBreathPauseAlarm(MainActivity.getCurDevice().getAddress(), AlarmSettingActivity.bpAlarmConfig.isEnable(), AlarmSettingActivity.bpAlarmConfig.getHour(), AlarmSettingActivity.bpAlarmConfig.getMinute(), AlarmSettingActivity.bpAlarmConfig.getDuration(), 3000,
+							setAlarmCallback);
+				}
+			} else {
 				AlarmSettingActivity.oobAlarmConfig.setEnable(isChecked);
-				getBinatoneHelper().setOutOfBedAlarm(AlarmSettingActivity.oobAlarmConfig.isEnable(), AlarmSettingActivity.oobAlarmConfig.getHour(), AlarmSettingActivity.oobAlarmConfig.getMinute(), AlarmSettingActivity.oobAlarmConfig.getDuration(), 3000, setAlarmCallback);
+				if (MainActivity.getCurDevice() != null) {
+					getDeviceHelper().setOutOfBedAlarm(MainActivity.getCurDevice().getAddress(), AlarmSettingActivity.oobAlarmConfig.isEnable(), AlarmSettingActivity.oobAlarmConfig.getHour(), AlarmSettingActivity.oobAlarmConfig.getMinute(), AlarmSettingActivity.oobAlarmConfig.getDuration(), 3000,
+							setAlarmCallback);
+				}
 			}
 		}
 	};
-	
+
 	private IResultCallback<Void> setAlarmCallback = new IResultCallback<Void>() {
 		@Override
-		public void onResultCallback(CallbackData<Void> cd) {
+		public void onResultCallback(IDeviceManager manager, CallbackData<Void> cd) {
 			// TODO Auto-generated method stub
-			SdkLog.log(TAG+" onResultCallback " + cd);
-			if(cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_SET) {
-				if(cd.isSuccess()) {
-					
-				}else {
-					
+			SdkLog.log(TAG + " onResultCallback " + cd);
+			if (!isAdded()) {
+				return;
+			}
+			if (cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_SET) {
+				if (cd.isSuccess()) {
+					mActivity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							initBreathPauseTimeView();
+						}
+					});
+				} else {
+
 				}
-			}else if(cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_SET) {
-				if(cd.isSuccess()) {
-					
-				}else {
-					
+			} else if (cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_SET) {
+				if (cd.isSuccess()) {
+					mActivity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							initOutOfBedTimeView();
+						}
+					});
+				} else {
+
 				}
 			}
 		}
 	};
+
+	private void initBreathPauseTimeView() {
+		int hour = AlarmSettingActivity.bpAlarmConfig.getHour();
+		int min = AlarmSettingActivity.bpAlarmConfig.getMinute();
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, min);
+		calendar.add(Calendar.MINUTE, AlarmSettingActivity.bpAlarmConfig.getDuration());
+		int eHour = calendar.get(Calendar.HOUR_OF_DAY);
+		int eMin = calendar.get(Calendar.MINUTE);
+		tvBreathPauseAlarmTime.setText(String.format("%02d:%02d~%02d:%02d", hour, min, eHour, eMin));
+	}
 	
+	private void initOutOfBedTimeView() {
+		int hour = AlarmSettingActivity.oobAlarmConfig.getHour();
+		int min = AlarmSettingActivity.oobAlarmConfig.getMinute();
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, min);
+		calendar.add(Calendar.MINUTE, AlarmSettingActivity.oobAlarmConfig.getDuration());
+		int eHour = calendar.get(Calendar.HOUR_OF_DAY);
+		int eMin = calendar.get(Calendar.MINUTE);
+		tvOutOfBedTime.setText(String.format("%02d:%02d~%02d:%02d", hour, min, eHour, eMin));
+	}
+
 	private IResultCallback<AlarmConfig> getAlarmCallback = new IResultCallback<AlarmConfig>() {
 		@Override
-		public void onResultCallback(CallbackData<AlarmConfig> cd) {
+		public void onResultCallback(IDeviceManager manager, CallbackData<AlarmConfig> cd) {
 			// TODO Auto-generated method stub
-			if(!isAdded()) {
-				return;
-			}
-			SdkLog.log(TAG+" onResultCallback " + cd);
-			if(cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_GET) {
-				if(cd.isSuccess()) {
+			SdkLog.log(TAG + " onResultCallback " + cd);
+			if (cd.getCallbackType() == IMonitorManager.METHOD_BP_ALARM_GET) {
+				getDeviceHelper().getOutOfBedAlarm(MainActivity.getCurDevice().getAddress(), 3000, getAlarmCallback);
+				if (cd.isSuccess()) {
 					AlarmSettingActivity.bpAlarmConfig = cd.getResult();
+					if (!isAdded()) {
+						return;
+					}
 					mActivity.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
 							cbBreathPauseAlarm.setChecked(AlarmSettingActivity.bpAlarmConfig.isEnable());
+							initBreathPauseTimeView();
 						}
 					});
-				}else {
-					
+				} else {
+
 				}
-			}else if(cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_GET) {
-				if(cd.isSuccess()) {
+			} else if (cd.getCallbackType() == IMonitorManager.METHOD_OUT_OF_BED_ALARM_GET) {
+				if (cd.isSuccess()) {
 					AlarmSettingActivity.oobAlarmConfig = cd.getResult();
+					if (!isAdded()) {
+						return;
+					}
 					mActivity.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
 							cbOutOfBedAlarm.setChecked(AlarmSettingActivity.oobAlarmConfig.isEnable());
+							initOutOfBedTimeView();
 						}
 					});
-				}else {
-					
+				} else {
+
 				}
 			}
 		}
 	};
-	
-	
+
 	private IConnectionStateCallback stateCallback = new IConnectionStateCallback() {
 		@Override
-		public void onStateChanged(IDeviceManager manager, final CONNECTION_STATE state) {
+		public void onStateChanged(final IDeviceManager manager, final CONNECTION_STATE state) {
 			// TODO Auto-generated method stub
-			
-			if(!isAdded()){
+			if (!isAdded()) {
 				return;
 			}
-			
+
 			mActivity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					initPageState(state == CONNECTION_STATE.CONNECTED);
-					SdkLog.log(TAG+" onStateChanged state:" + state);
-					if(state == CONNECTION_STATE.DISCONNECT){
-						
-						if(upgrading){
-							upgrading = false;
-							mActivity.hideUpgradeDialog();
-							mActivity.setUpgradeProgress(0);
-//							tvUpgrade.setText(R.string.update_completed);
+					if (MainActivity.getCurDevice() != null && MainActivity.getCurDevice().getAddress().equals(manager.getAddress())) {
+						initPageState(state == CONNECTION_STATE.CONNECTED);
+						SdkLog.log(TAG + " onStateChanged state:" + state);
+						if (state == CONNECTION_STATE.DISCONNECT) {
+							if (upgrading) {
+								upgrading = false;
+								mActivity.hideUpgradeDialog();
+								mActivity.setUpgradeProgress(0);
+								// tvUpgrade.setText(R.string.update_completed);
+							}
+						} else if (state == CONNECTION_STATE.CONNECTED) {
+							if (upgrading) {
+								upgrading = false;
+								btnUpgrade.setEnabled(true);
+								mActivity.hideUpgradeDialog();
+								// tvUpgrade.setText(R.string.update_completed);
+							}
+
+							getDeviceHelper().getBreathPauseAlarm(MainActivity.getCurDevice().getAddress(), 3000, getAlarmCallback);
 						}
-						
-					}else if(state == CONNECTION_STATE.CONNECTED){
-						
-						if(upgrading){
-							upgrading = false;
-							btnUpgrade.setEnabled(true);
-							mActivity.hideUpgradeDialog();
-//							tvUpgrade.setText(R.string.update_completed);
-						}
-						
-						getBinatoneHelper().getBreathPauseAlarm(3000, getAlarmCallback);
-						getBinatoneHelper().getOutOfBedAlarm(3000, getAlarmCallback);
 					}
 				}
 			});
 		}
 	};
-	
 
 	@Override
 	public void onDestroyView() {
 		// TODO Auto-generated method stub
 		super.onDestroyView();
-		getBinatoneHelper().removeConnectionStateCallback(stateCallback);
+		getDeviceHelper().removeConnectionStateCallback(stateCallback);
+	}
+	
+	private void upgradeDevice(FirmwareBean bean) {
+		btnUpgrade.setEnabled(false);
+		mActivity.showUpgradeDialog();
+		mActivity.setUpgradeProgress(0);
+		upgrading = true;
+		// InputStream is = getResources().getAssets().open("xxx.des");
+		getDeviceHelper().upgradeDevice(MainActivity.getCurDevice().getAddress(), bean.crcDes, bean.crcBin, bean.is, new IResultCallback<Integer>() {
+			@Override
+			public void onResultCallback(IDeviceManager manager, final CallbackData<Integer> cd) {
+				// TODO Auto-generated method stub
+				// SdkLog.log(TAG+" upgradeDevice " + cd);
+				mActivity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						if (cd.isSuccess()) {
+							int progress = cd.getResult();
+							mActivity.setUpgradeProgress(progress);
+							if (progress == 100) {
+								upgrading = false;
+								btnUpgrade.setEnabled(true);
+								mActivity.hideUpgradeDialog();
+								Toast.makeText(mActivity, R.string.up_success, Toast.LENGTH_SHORT).show();
+							}
+						} else {
+							upgrading = false;
+							mActivity.hideUpgradeDialog();
+							Toast.makeText(mActivity, R.string.up_failed, Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
+			}
+		});
 	}
 
-	
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		super.onClick(v);
-		if(v == btnConnectDevice) {//233 - 10000
-			Object tag = v.getTag();
-			if(tag == null || "connect".equals(tag)) {
-				if(!BleHelper.getInstance(mActivity).isBluetoothOpen()) {
-					Intent enabler = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-					startActivityForResult(enabler, BleHelper.REQCODE_OPEN_BT);
-				}else {
-					String strId = etUserId.getText().toString().trim();
-					if(TextUtils.isEmpty(strId)) {
-						Toast.makeText(mActivity, R.string.userid_not_empty, Toast.LENGTH_SHORT).show();
-						return;
-					}
-					
-					int uid = Integer.valueOf(strId);
-					if(uid <= 0 || strId.startsWith("0") ) {
-						Toast.makeText(mActivity, R.string.userid_error, Toast.LENGTH_SHORT).show();
-						return;
-					}
-					
-					DemoApp.USER_ID = uid;
-					Intent intent = new Intent(mActivity, SearchBleDeviceActivity.class);
-					startActivity(intent);
+		if (v == btnConnectDevice) {// 233 - 10000
+			if (!BleUtil.isBluetoothOpen(mActivity)) {
+				Intent enabler = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+				startActivityForResult(enabler, BleHelper.REQCODE_OPEN_BT);
+			} else {
+				String strId = etUserId.getText().toString().trim();
+				if (TextUtils.isEmpty(strId)) {
+					Toast.makeText(mActivity, R.string.userid_not_empty, Toast.LENGTH_SHORT).show();
+					return;
 				}
-			}else {//断开设备
-				getBinatoneHelper().disconnect();
+
+				int uid = Integer.valueOf(strId);
+				if (uid <= 0 || strId.startsWith("0")) {
+					Toast.makeText(mActivity, R.string.userid_error, Toast.LENGTH_SHORT).show();
+					return;
+				}
+
+				DemoApp.USER_ID = uid;
+				Intent intent = new Intent(mActivity, SearchBleDeviceActivity.class);
+				startActivity(intent);
 			}
-		}else if(v == btnUpgrade){
-			FirmwareBean bean = getFirmwareBean();
-			if(bean == null){
+		} else if (v == btnUpgrade) {
+			final FirmwareBean firmwareBean = getFirmwareBean();
+			if (firmwareBean == null || MainActivity.getCurDevice() == null) {
 				return;
 			}
 			
-			btnUpgrade.setEnabled(false);
-			mActivity.showUpgradeDialog();
-			mActivity.setUpgradeProgress(0);
-			upgrading = true;
-//			InputStream is = getResources().getAssets().open("Z2_V1.11.des");
-			getBinatoneHelper().upgradeDevice(bean.crcDes, bean.crcBin, bean.is, new IResultCallback<Integer>() {
+			getDeviceHelper().getBattery(MainActivity.getCurDevice().getAddress(), 1000, new IResultCallback<BatteryBean>() {
 				@Override
-				public void onResultCallback(final CallbackData<Integer> cd) {
-					// TODO Auto-generated method stub
-//					SdkLog.log(TAG+" upgradeDevice " + cd);
-					mActivity.runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							if(cd.isSuccess()){
-								int progress =  cd.getResult();
-								mActivity.setUpgradeProgress(progress);
-								if(progress == 100){
-									upgrading = false;
-									btnUpgrade.setEnabled(true);
-									mActivity.hideUpgradeDialog();
-									Toast.makeText(mActivity, R.string.up_success, Toast.LENGTH_SHORT).show();
-									getBinatoneHelper().disconnect();
-								}
-							}else{
-								upgrading = false;
-								btnUpgrade.setEnabled(getBinatoneHelper().isConnected());
-								mActivity.hideUpgradeDialog();
-								Toast.makeText(mActivity, R.string.up_failed, Toast.LENGTH_SHORT).show();
-							}
-						}
-					});
-				}
-			});
-		}else if(v == btnDeviceName){
-			tvDeviceName.setText(MainActivity.deviceName);
-		}else if(v == btnDeviceId){
-			tvDeviceId.setText(MainActivity.deviceId);
-		}else if(v == btnPower){
-			getBinatoneHelper().getBattery(1000, new IResultCallback<BatteryBean>() {
-				@Override
-				public void onResultCallback(final CallbackData<BatteryBean> cd) {
+				public void onResultCallback(IDeviceManager manager, final CallbackData<BatteryBean> cd) {
 					// TODO Auto-generated method stub
 					mActivity.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-							SdkLog.log(TAG+" getBattery cd:" + cd);
-							if(cd.isSuccess()){
-								BatteryBean bean =  cd.getResult();
-								if(bean.getChargingState() == 1) {
-									MainActivity.power = getString(R.string.charging);
-									tvPower.setText(MainActivity.power);
-								}else {
-									MainActivity.power = bean.getQuantity()+"%";
-									tvPower.setText(MainActivity.power);
+							SdkLog.log(TAG + " getBattery cd:" + cd);
+							if (cd.isSuccess()) {
+								BatteryBean bean = cd.getResult();
+								if (bean.getChargingState() == 1) {
+									upgradeDevice(firmwareBean);
+								} else {
+									if(bean.getQuantity() >= 20) {
+										upgradeDevice(firmwareBean);
+									}else {
+										Toast.makeText(mActivity, R.string.low_battery, Toast.LENGTH_SHORT).show();
+									}
 								}
 							}
 						}
 					});
 				}
 			});
-		}else if(v == btnMac){
-			tvMac.setText(MainActivity.mac);
-		}else if(v == btnVersion){
-			tvVersion.setText(MainActivity.version);
-			/*getBinatoneHelper().getDeviceVersion(1000, new IResultCallback<String>() {
-				@Override
-				public void onResultCallback(final CallbackData<String> cd) {
-					// TODO Auto-generated method stub
-					mActivity.runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							if(cd.isSuccess()){
-								MainActivity.version =  cd.getResult();
-								tvVersion.setText(MainActivity.version);
+			
+		} else if (v == btnDeviceName) {
+			initDeviceName();
+		} else if (v == btnDeviceId) {
+			initDeviceId();
+		} else if (v == btnPower) {
+			if (MainActivity.getCurDevice() != null) {
+				getDeviceHelper().getBattery(MainActivity.getCurDevice().getAddress(), 1000, new IResultCallback<BatteryBean>() {
+					@Override
+					public void onResultCallback(IDeviceManager manager, final CallbackData<BatteryBean> cd) {
+						// TODO Auto-generated method stub
+						mActivity.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								SdkLog.log(TAG + " getBattery cd:" + cd);
+								if (cd.isSuccess()) {
+									BatteryBean bean = cd.getResult();
+									if (bean.getChargingState() == 1) {
+										String power = getString(R.string.charging);
+										MainActivity.setDevicePower(MainActivity.getCurDevice().getAddress(), power);
+										initPower();
+									} else {
+										String power = bean.getQuantity() + "%";
+										MainActivity.setDevicePower(MainActivity.getCurDevice().getAddress(), power);
+										initPower();
+									}
+								}
 							}
-						}
-					});
-				}
-			});*/
-		}else if(v == tvSetAlarmTimeRange) {
+						});
+					}
+				});
+			}
+		} else if (v == btnMac) {
+			initMac();
+		} else if (v == btnVersion) {
+			initVersion();
+			/*
+			 * getBinatoneHelper().getDeviceVersion(1000, new IResultCallback<String>() {
+			 * 
+			 * @Override public void onResultCallback(final CallbackData<String> cd) { //
+			 * TODO Auto-generated method stub mActivity.runOnUiThread(new Runnable() {
+			 * 
+			 * @Override public void run() { // TODO Auto-generated method stub
+			 * if(cd.isSuccess()){ MainActivity.version = cd.getResult();
+			 * tvVersion.setText(MainActivity.version); } } }); } });
+			 */
+		} else if (v == vSetBreathPauseAlarmTime) {
 			Intent intent = new Intent(mActivity, AlarmSettingActivity.class);
+			intent.putExtra("type", "breathPause");
+			startActivity(intent);
+		} else if (v == vSetOutOfBedAlarmTime) {
+			Intent intent = new Intent(mActivity, AlarmSettingActivity.class);
+			intent.putExtra("type", "outOfBed");
 			startActivity(intent);
 		}
 	}
-	
-	
-	class FirmwareBean{
+
+	class FirmwareBean {
 		InputStream is;
 		long crcBin;
 		long crcDes;
 	}
-	
-	private FirmwareBean getFirmwareBean(){
+
+	private FirmwareBean getFirmwareBean() {
 		try {
-//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20180827_1.20_beta.des");
-//			FirmwareBean bean = new FirmwareBean();
-//			bean.is = is;
-//			bean.crcBin = 248574792l;
-//			bean.crcDes = 3706033076l;
-			
-//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20180907_1.23_beta.des");
-//			FirmwareBean bean = new FirmwareBean();
-//			bean.is = is;
-//			bean.crcBin = 3113387137l;
-//			bean.crcDes = 3163670667l;
-			
-			//v1.24 修复：1、优化24小时数据下载乱码；2、增加恢复出厂设置接口
-//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20180910_1.24_beta.des");
-//			FirmwareBean bean = new FirmwareBean();
-//			bean.is = is;
-//			bean.crcBin = 1082793749l;
-//			bean.crcDes = 530097278l;
-			
-			//v1.26修复：反复操作开关实时数据，下载过去24小时历史数据时，设备断开无法连接问题
-//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20181031_1.26_beta.des");
-//			FirmwareBean bean = new FirmwareBean();
-//			bean.is = is;
-//			bean.crcBin = 3401879512l;
-//			bean.crcDes = 922055888l;
-			
-			/**
-			 * v1.29更新如下：
-			 * 1、优化数据混乱，优化机制如下：
-             * 2、设备开关机时初始化算法
-             * 3、设备未掉电结束采集初始化算法
-             * 4、设备切换用户时初始化算法
-             * 5、设备开关机时初始化算法
-		     * 6、算法优化，离床优化，心率、呼吸率优化
-		     * 7、优化设备没电时充电，充电指示灯不指示的问题
-			 */
-//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20181207_1.29_beta.des");
-//			FirmwareBean bean = new FirmwareBean();
-//			bean.is = is;
-//			bean.crcBin = 921413085l;
-//			bean.crcDes = 587897703l;
-			
-			/**
-			 * v1.41更新如下：
-			 * 增加报警功能
-			 */
-//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190806_1.41_beta.des");
-//			FirmwareBean bean = new FirmwareBean();
-//			bean.is = is;
-//			bean.crcBin = 2707569021l;
-//			bean.crcDes = 1671192570l;
-			
-//			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20190814_1.42_beta.des");
-//			FirmwareBean bean = new FirmwareBean();
-//			bean.is = is;
-//			bean.crcBin = 2224788989l;
-//			bean.crcDes = 1261788337l;
-			
-			InputStream is = mActivity.getResources().getAssets().open("MBP89SN_20191008_1.43(V1.1.4)_Debug.des");
+			InputStream is = mActivity.getResources().getAssets().open("MBP89SN-v1.52b(v2.0.02b)-ug-20211115.des");
 			FirmwareBean bean = new FirmwareBean();
 			bean.is = is;
-//			bean.crcBin = 846064980l;
-//			bean.crcDes = 3663185237l;
-			bean.crcBin = Long.valueOf("846064980");
-			bean.crcDes = Long.valueOf("3663185237");
-			SdkLog.log(TAG+" getFirmwareBean-------------string convert to long without L");
+			bean.crcBin = 1774760471l;
+			bean.crcDes = 854794341l;
 			return bean;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -482,13 +589,3 @@ public class DeviceFragment extends BaseFragment {
 		return null;
 	}
 }
-
-
-
-
-
-
-
-
-
-

@@ -1,22 +1,21 @@
 package com.binatonesdk.demo.fragment;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import com.binatonesdk.demo.DemoApp;
+import com.binatonesdk.demo.MainActivity;
 import com.binatonesdk.demo.R;
 import com.binatonesdk.demo.ReportActivity;
 import com.binatonesdk.demo.util.HistoryDataComparator;
-import com.medica.xiangshui.jni.AlgorithmUtils;
 import com.sleepace.sdk.binatone.domain.Analysis;
 import com.sleepace.sdk.binatone.domain.Detail;
 import com.sleepace.sdk.binatone.domain.HistoryData;
 import com.sleepace.sdk.binatone.domain.Summary;
 import com.sleepace.sdk.binatone.util.AnalysisUtil;
+import com.sleepace.sdk.domain.BleDevice;
 import com.sleepace.sdk.interfs.IConnectionStateCallback;
 import com.sleepace.sdk.interfs.IDeviceManager;
 import com.sleepace.sdk.interfs.IResultCallback;
@@ -31,11 +30,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class HistoryDataFragment extends BaseFragment {
 
-	private Button btnSync, btn1115, btn1126, btnAbortHistoryDownload, btnAbortGetLast24HourData, btnDemo;
+	private Button btnDemo, btnAbortHistoryDownload, btnAbortGetLast24HourData;
+	private LinearLayout layoutSync;
 	private ProgressDialog progressDialog;
 	
 	//10 days, Including start time and end time
@@ -60,10 +62,7 @@ public class HistoryDataFragment extends BaseFragment {
 	protected void findView(View root) {
 		// TODO Auto-generated method stub
 		super.findView(root);
-		btnSync = (Button) root.findViewById(R.id.btn_sync);
-		btn1115 = (Button) root.findViewById(R.id.btn_1115_1125);
-		btn1126 = (Button) root.findViewById(R.id.btn_1126_1206);
-		btnSync = (Button) root.findViewById(R.id.btn_sync);
+		layoutSync = root.findViewById(R.id.layout_sync);
 		btnAbortHistoryDownload = (Button) root.findViewById(R.id.btn_abortHistoryDownload);
 		btnAbortGetLast24HourData = (Button) root.findViewById(R.id.btn_abortGetLast24HourData);
 		btnDemo = (Button) root.findViewById(R.id.btn_demo_data);
@@ -72,10 +71,7 @@ public class HistoryDataFragment extends BaseFragment {
 	protected void initListener() {
 		// TODO Auto-generated method stub
 		super.initListener();
-		getBinatoneHelper().addConnectionStateCallback(stateCallback);
-		btnSync.setOnClickListener(this);
-		btn1115.setOnClickListener(this);
-		btn1126.setOnClickListener(this);
+		getDeviceHelper().addConnectionStateCallback(stateCallback);
 		btnAbortHistoryDownload.setOnClickListener(this);
 		btnAbortGetLast24HourData.setOnClickListener(this);
 		btnDemo.setOnClickListener(this);
@@ -85,22 +81,17 @@ public class HistoryDataFragment extends BaseFragment {
 	public void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		boolean enable = getBinatoneHelper().isConnected();
-		setBtnEnable(enable);
+//		boolean enable = getDeviceHelper().isConnected();
+//		setBtnEnable(enable);
 	}
 	
 	private void setBtnEnable(boolean enable) {
-		btnSync.setEnabled(enable);
-		btn1115.setEnabled(enable);
-		btn1126.setEnabled(enable);
+		
 	}
 
 	protected void initUI() {
 		// TODO Auto-generated method stub
 		mActivity.setTitle(R.string.history_data);
-		btn1115.setText(getString(R.string.sync)+"(" + startTime1 + "~" + endTime1 +") 10days");
-		btn1126.setText(getString(R.string.sync)+"(" + startTime2 + "~" + endTime2 +") 10days");
-		
 		btnAbortHistoryDownload.setText("AbortHistoryDownload");
 		btnAbortGetLast24HourData.setText("AbortGetLast24HourData");
 		
@@ -110,6 +101,33 @@ public class HistoryDataFragment extends BaseFragment {
 		progressDialog.setMessage(getString(R.string.syncing));
 		progressDialog.setCancelable(false);
 		progressDialog.setCanceledOnTouchOutside(false);
+		initBtnSync();
+	}
+	
+	
+	private void initBtnSync() {
+		layoutSync.removeAllViews();
+		for(int i=0; i<MainActivity.getDeviceList().size(); i++) {
+			final BleDevice device = MainActivity.getDeviceList().get(i);
+			final View itemView = LayoutInflater.from(mActivity).inflate(R.layout.layout_btn_sync, null);
+			TextView tv = itemView.findViewById(R.id.tv_device);
+			tv.setText(getString(R.string.device) + (MainActivity.getDeviceList().size() - i) + " " + device.getDeviceName());
+			final Button btn = itemView.findViewById(R.id.btn_sync);
+//			if(getDeviceHelper().isConnected(device.getAddress())) {
+//				btn.setEnabled(true);
+//			}else {
+//				btn.setEnabled(false);
+//			}
+			btn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					int endTime = (int) (System.currentTimeMillis() / 1000);
+					downloadData(device.getAddress(), 0, endTime);
+				}
+			});
+			layoutSync.addView(itemView, 0);
+		}
 	}
 
 	private IConnectionStateCallback stateCallback = new IConnectionStateCallback() {
@@ -138,14 +156,14 @@ public class HistoryDataFragment extends BaseFragment {
 	public void onDestroyView() {
 		// TODO Auto-generated method stub
 		super.onDestroyView();
-		getBinatoneHelper().removeConnectionStateCallback(stateCallback);
+		getDeviceHelper().removeConnectionStateCallback(stateCallback);
 	}
 	
-	private void downloadData(int startTime, int endTime) {
+	private void downloadData(String address, int startTime, int endTime) {
 		progressDialog.show();
-		getBinatoneHelper().historyDownload(startTime, endTime, DemoApp.USER_SEX, new IResultCallback<List<HistoryData>>() {
+		getDeviceHelper().historyDownload(address, startTime, endTime, DemoApp.USER_SEX, new IResultCallback<List<HistoryData>>() {
 			@Override
-			public void onResultCallback(final CallbackData<List<HistoryData>> cd) {
+			public void onResultCallback(final IDeviceManager manager, final CallbackData<List<HistoryData>> cd) {
 				// TODO Auto-generated method stub
 				if (!isAdded()) {
 					return;
@@ -168,6 +186,8 @@ public class HistoryDataFragment extends BaseFragment {
 								intent.putExtra(ReportActivity.EXTRA_REPORT_TYPE, ReportActivity.REPORT_TYPE_HISOTRY);
 								intent.putExtra(ReportActivity.EXTRA_DATA, historyData);
 								startActivity(intent);
+							}else {
+								Toast.makeText(mActivity, R.string.tips_no_report, Toast.LENGTH_SHORT).show();
 							}
 						}else {
 							Toast.makeText(mActivity, R.string.sync_falied, Toast.LENGTH_SHORT).show();
@@ -186,7 +206,7 @@ public class HistoryDataFragment extends BaseFragment {
 			
 		}else if(v == btnAbortHistoryDownload) {
 			
-		}else if (v == btnSync) {
+		}/*else if (v == btnSync) {
 //			Calendar cal = Calendar.getInstance();
 //			cal.set(Calendar.HOUR_OF_DAY, 0);
 //			cal.set(Calendar.MINUTE, 0);
@@ -198,7 +218,7 @@ public class HistoryDataFragment extends BaseFragment {
 			// cal.set(Calendar.SECOND, 0);
 			int endTime = (int) (System.currentTimeMillis() / 1000);
 			downloadData(0, endTime);
-		} else if(v == btn1115) {
+		}else if(v == btn1115) {
 			try {
 				Date startDate = dateFormat.parse(startTime1);
 				Date endDate = dateFormat.parse(endTime1);
@@ -220,13 +240,13 @@ public class HistoryDataFragment extends BaseFragment {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else if (v == btnDemo) {
+		} */else if (v == btnDemo) {
 			HistoryData data = new HistoryData();
 			Summary summ = new Summary();
 			summ.setStartTime(1535990400);
 			summ.setRecordCount(1440);
 			Detail detail = new Detail();
-			detail.setBreathRate(new int[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+			detail.setBreathRate(new short[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -264,7 +284,7 @@ public class HistoryDataFragment extends BaseFragment {
 					23, 23, 23, 23, 23, 23, 24, 23, 24, 23, 24, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 23, 23, 24, 23, 23, 23, 24, 24, 24, 23, 24, 24, 24, 24, 24, 24, 23,
 					24, 23, 23, 24, 24, 24, 23, 23, 23, 23, 24, 24, 24, 24, 23, 24, 24, 23, 24, 24, 23, 24, 23, 23, 24, 24, 24, 24, 23, 24, 24, 23, 24, 23, 24, 23, 24, 23, 24, 24, 23, 24, 23, 24, 24,
 					24, 24, 24, 24, 23, 24, 24, 24 });
-			detail.setHeartRate(new int[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+			detail.setHeartRate(new short[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -305,7 +325,7 @@ public class HistoryDataFragment extends BaseFragment {
 					109, 108, 109, 109, 109, 109, 109, 108, 109, 108, 109, 109, 108, 109, 109, 109, 109, 108, 108, 109, 108, 108, 109, 109, 108, 108, 108, 109, 108, 108, 109, 108, 109, 108, 108, 108,
 					108 });
 
-			detail.setStatusValue(new int[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+			detail.setStatusValue(new short[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -341,7 +361,7 @@ public class HistoryDataFragment extends BaseFragment {
 					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-			detail.setStatus(new int[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+			detail.setStatus(new short[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 					255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -378,6 +398,7 @@ public class HistoryDataFragment extends BaseFragment {
 					0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 					0, 0 });
 			
+			//01.01.44 ==> 1.44   01.01.45 ==> 1.45
 			Analysis analysis = AnalysisUtil.analysData(summ, detail, 0);
 			SdkLog.log(TAG+" demo data analysis:" + analysis.getAlgorithmVer()+",sleepState:"+ Arrays.toString(analysis.getSca_array()));
 //			Analysis analysis = new Analysis();

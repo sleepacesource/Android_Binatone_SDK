@@ -24,7 +24,7 @@ public abstract class BaseFragment extends Fragment implements OnClickListener{
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 	
-	public BinatoneHelper getBinatoneHelper() {
+	public BinatoneHelper getDeviceHelper() {
 		return mHelper;
 	}
 
