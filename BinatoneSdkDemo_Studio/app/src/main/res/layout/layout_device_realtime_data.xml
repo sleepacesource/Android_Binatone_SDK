@@ -1,0 +1,140 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/tv_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/COLOR_4"
+        android:textSize="@dimen/Title_4" 
+        android:paddingTop="10dp"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/time_data"
+        android:textColor="@color/COLOR_4"
+        android:textSize="@dimen/Title_4" />
+
+    <include layout="@layout/divider_line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/page_item_height"
+        android:layout_marginTop="0dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="15dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/state"
+            android:textColor="@color/COLOR_3"
+            android:textSize="@dimen/Title_3" />
+
+        <TextView
+            android:id="@+id/tv_sleep_status"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|right"
+            android:paddingRight="10dp"
+            android:text="--"
+            android:textColor="@color/COLOR_3"
+            android:textSize="@dimen/Title_3" />
+    </LinearLayout>
+
+    <include layout="@layout/divider_line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/page_item_height"
+        android:layout_marginTop="0dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="15dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/real_heart"
+            android:textColor="@color/COLOR_3"
+            android:textSize="@dimen/Title_3" />
+
+        <TextView
+            android:id="@+id/tv_heartrate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|right"
+            android:paddingRight="10dp"
+            android:text="--"
+            android:textColor="@color/COLOR_3"
+            android:textSize="@dimen/Title_3" />
+    </LinearLayout>
+
+    <include layout="@layout/divider_line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/page_item_height"
+        android:layout_marginTop="0dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="15dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/real_breath"
+            android:textColor="@color/COLOR_3"
+            android:textSize="@dimen/Title_3" />
+
+        <TextView
+            android:id="@+id/tv_breathrate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|right"
+            android:paddingRight="10dp"
+            android:text="--"
+            android:textColor="@color/COLOR_3"
+            android:textSize="@dimen/Title_3" />
+    </LinearLayout>
+
+    <include layout="@layout/divider_line" />
+
+    <Button
+        android:id="@+id/btn_realtime_data"
+        style="@style/common_bt"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/obtain_24data"
+        android:textSize="@dimen/Title_2" />
+
+    <TextView
+        android:id="@+id/last_24_hour_data"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/page_item_height"
+        android:layout_centerVertical="true"
+        android:drawableRight="@drawable/ic_right"
+        android:gravity="left|center_vertical"
+        android:text="@string/look_24data"
+        android:textColor="@drawable/label_text_color"
+        android:textSize="@dimen/Title_2" />
+
+    <include layout="@layout/divider_line" />
+
+</LinearLayout>

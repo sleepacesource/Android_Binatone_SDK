@@ -1,0 +1,58 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.binatonesdk.demo"
+    android:versionCode="2"
+    android:versionName="2.0" >
+
+    <uses-sdk
+        android:minSdkVersion="23"
+        android:targetSdkVersion="26" />
+    
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+	<uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_app_logo"
+        android:label="@string/app_name"
+        android:name="com.binatonesdk.demo.DemoApp" 
+        android:theme="@android:style/Theme.Black.NoTitleBar"
+        >
+        
+         <activity
+            android:name="com.binatonesdk.demo.MainActivity"
+            android:screenOrientation="portrait" ><!-- SplashActivity --><!-- MainActivity -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+         <!-- <activity
+            android:name="com.binatonesdk.demo.MainActivity"
+            android:screenOrientation="portrait"
+            /> -->
+         
+         <activity
+            android:name="com.binatonesdk.demo.SearchBleDeviceActivity"
+            android:screenOrientation="portrait"
+            />
+         
+         <activity
+            android:name="com.binatonesdk.demo.AlarmSettingActivity"
+            android:screenOrientation="portrait"
+            />
+
+         <activity
+            android:name="com.binatonesdk.demo.ReportActivity"
+            android:screenOrientation="portrait"
+            />
+         
+    </application>
+
+</manifest>

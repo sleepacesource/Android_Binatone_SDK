@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/page_bg"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/activity_margin"
+    android:paddingRight="@dimen/activity_margin" >
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="0dp"
+        android:text="@string/simulation_data"
+        android:textColor="@color/COLOR_4"
+        android:textSize="@dimen/Title_4" />
+    
+     <Button
+        android:id="@+id/btn_demo_data"
+        style="@style/common_bt"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/simulation_data"
+        android:textSize="@dimen/Title_2"
+        android:visibility="visible" />
+     
+     <LinearLayout 
+         android:id="@+id/layout_sync"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="vertical"
+         />
+         
+    <Button
+        android:id="@+id/btn_sync"
+        style="@style/common_bt"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/sync"
+        android:textSize="@dimen/Title_2" 
+        android:visibility="gone"
+        />
+    
+    <Button
+        android:id="@+id/btn_abortHistoryDownload"
+        style="@style/common_bt"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/Title_2" 
+        android:visibility="gone"
+        />
+    
+    <Button
+        android:id="@+id/btn_abortGetLast24HourData"
+        style="@style/common_bt"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/Title_2" 
+        android:visibility="gone"
+        />
+
+</LinearLayout>
