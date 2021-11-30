@@ -97,7 +97,7 @@ public class MainActivity extends BaseActivity {
 		findView();
 		initListener();
 		initUI();
-		checkPermission();
+//		checkPermission();
 	}
 	
 	private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1;

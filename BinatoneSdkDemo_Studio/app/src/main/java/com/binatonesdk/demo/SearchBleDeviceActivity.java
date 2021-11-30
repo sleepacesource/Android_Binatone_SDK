@@ -24,6 +24,8 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -257,26 +259,24 @@ public class SearchBleDeviceActivity extends BaseActivity {
 	}
     
     
-    private static final int REQUEST_ACCESS_COARSE_LOCATION = 1;
-
+    private static final int REQUEST_ACCESS_LOCATION = 1;
 	private boolean checkPermission(){
-
 	    boolean grant = true;
         if(Build.VERSION.SDK_INT>=23){
             //判断是否有权限
             if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                 grant = false;
                 SdkLog.log(TAG+" checkPermission not grant-------------");
 
                 //请求权限
-                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        REQUEST_ACCESS_COARSE_LOCATION);
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_ACCESS_LOCATION);
 
                 //向用户解释，为什么要申请该权限
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
                     SdkLog.log(TAG+" checkPermission tips-------------");
                     //Toast.makeText(DeviceListActivity.this,"shouldShowRequestPermissionRationale", Toast.LENGTH_SHORT).show();
                 }
@@ -296,14 +296,14 @@ public class SearchBleDeviceActivity extends BaseActivity {
         // TODO Auto-generated method stub
     	super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         SdkLog.log(TAG+" onRequestPermissionsResult permissions:" + Arrays.toString(permissions)+",grantResults:"+ Arrays.toString(grantResults));
-        if (requestCode == REQUEST_ACCESS_COARSE_LOCATION) {
-            if (permissions.length > 0 && permissions[0].equals(Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (requestCode == REQUEST_ACCESS_LOCATION) {
+            if (permissions.length > 0 && permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 用户同意使用该权限
-            	scanBleDevice();
+                vRefresh.performClick();
             } else {
                 // 用户不同意，向用户展示该权限作用
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                     //Toast.makeText(this, R.string.tips_permission, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -328,7 +328,26 @@ public class SearchBleDeviceActivity extends BaseActivity {
             }
         }
     }
-    
+
+    private final ScanCallback scanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            SdkLog.log(TAG+" onScanResult result-------------" + result);
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+            SdkLog.log(TAG+" onBatchScanResults-------------" + results);
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            SdkLog.log(TAG+" onScanFailed-------------" + errorCode);
+        }
+    };
     
     private final BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -346,7 +365,7 @@ public class SearchBleDeviceActivity extends BaseActivity {
 		            if(deviceName != null){
 		            	deviceName = deviceName.trim();
 		            }
-		            
+
 		            if(!TextUtils.isEmpty(deviceName) && deviceName.startsWith("MBP")){
 //		            if(!TextUtils.isEmpty(modelName) && !TextUtils.isEmpty(deviceName)){
 		            	SdkLog.log(TAG+" onLeScan modelName:" + modelName+",deviceName:" + deviceName);
