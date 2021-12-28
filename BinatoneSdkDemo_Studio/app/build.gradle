@@ -1,19 +1,37 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'com.android.application'
 }
 
+//获取时间的方法 GMT+8代表北京时间，下面两个方法都可以
+static def getNowTime() {
+//    return new SimpleDateFormat("yyyy-MM-dd HH_mm_ss_SSS", Locale.CHINA).format(new Date());
+    return new SimpleDateFormat("yyMMddHHmm", Locale.CHINA).format(new Date());
+//    return new Date().format("yyyy-MM-dd HH_mm_ss SSS", TimeZone.getTimeZone("GMT+8"));
+}
+
+def getFileName(){
+    def versionName = getProperty("android").defaultConfig.versionName;
+    def fileName = "BinatoneSdkDemo" + "_${versionName}_${getNowTime()}";
+    return fileName;
+}
+
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.1"
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.binatonesdk.demo"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 111
+        versionName "1.1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86","mips","arm64-v8a","x86_64","mips64"
+        }
     }
 
     sourceSets {
@@ -23,12 +41,34 @@ android {
         }
     }
 
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    /**
+     * 重命名APK
+     * defaultConfig.versionName：当前版本名字
+     * defaultConfig.versionCode：当前版本号
+     * getNowTime() ：获取当前时间的方法
+     * variant.name：当前打包默认的模式一般分两种：debug和release
+     * outputFileName：打包后的文件名字
+     */
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def fileName = getFileName() + ".apk";
+            println("variant.outputs.all-----------"+ fileName);
+            outputFileName = fileName;
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

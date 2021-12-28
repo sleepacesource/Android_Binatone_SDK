@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.binatonesdk.demo",
+  "variantName": "processReleaseResources",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "versionCode": 111,
+      "versionName": "1.1.1",
+      "outputFile": "BinatoneSdkDemo_1.1.1_2112281040.apk"
+    }
+  ]
+}

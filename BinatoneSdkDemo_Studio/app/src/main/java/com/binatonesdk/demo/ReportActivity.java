@@ -1,8 +1,7 @@
 package com.binatonesdk.demo;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 import com.binatonesdk.demo.view.AnalysisChart;
@@ -11,7 +10,6 @@ import com.sleepace.sdk.binatone.domain.HistoryData;
 import com.sleepace.sdk.binatone.util.SleepState;
 import com.sleepace.sdk.util.SdkLog;
 
-import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -111,66 +109,13 @@ public class ReportActivity extends BaseActivity {
 		SdkLog.log(TAG+" initUI reportType:" + reportType);
 		if (reportType == REPORT_TYPE_HISOTRY) {
 			tvReportDate.setText(dateFormat.format(new Date(historyData.getSummary().getStartTime() * 1000l)));
-			if (historyData != null && historyData.getSummary().getArithmeticVer() != null) {
-				List<int[]> breathPauseList = new ArrayList<int[]>();
-				List<int[]> outOfBedList = new ArrayList<int[]>();
-				if (historyData.getAnalysis() != null && historyData.getAnalysis().getOutOfBedEvent() != null) {
-					for (int i = 0; i < historyData.getAnalysis().getOutOfBedEvent().length; i++) {
-						outOfBedList.add(historyData.getAnalysis().getOutOfBedEvent()[i]);
-					}
-				}
-
-				if (historyData.getAnalysis() != null && historyData.getAnalysis().getBreathPauseEvent() != null) {
-					for (int i = 0; i < historyData.getAnalysis().getBreathPauseEvent().length; i++) {
-						breathPauseList.add(historyData.getAnalysis().getBreathPauseEvent()[i]);
-					}
-				}
-
+			if (historyData != null) {
 				SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 				LayoutInflater inflater = LayoutInflater.from(this);
-				if (breathPauseList.size() > 0) {
-					tvBreathPause.setText("");
-					layoutBreathPause.setVisibility(View.VISIBLE);
-					for (int i = 0; i < breathPauseList.size(); i++) {
-						int[] ss = breathPauseList.get(i);
-						int time = ss[0];
-						int duration = ss[1];
-						View itemView = inflater.inflate(R.layout.layout_report_exception_item, null);
-						TextView tvTime = itemView.findViewById(R.id.tv_time);
-						TextView tvDuration = itemView.findViewById(R.id.tv_duration);
-						tvTime.setText(timeFormat.format(new Date(time * 1000l)));
-						tvDuration.setText(duration + getString(R.string.seconds));
-						layoutBreathPause.addView(itemView);
-					}
-
-					View divider = inflater.inflate(R.layout.divider_line, null);
-					layoutBreathPause.addView(divider);
-				} else {
-					tvBreathPause.setText(R.string.nothing);
-					layoutBreathPause.setVisibility(View.GONE);
-				}
-
-				if (outOfBedList.size() > 0) {
-					tvOutOfBed.setText("");
-					layoutOutOfBed.setVisibility(View.VISIBLE);
-					for (int i = 0; i < outOfBedList.size(); i++) {
-						int[] ss = outOfBedList.get(i);
-						int time = ss[0];
-						int duration = ss[1];
-						View itemView = inflater.inflate(R.layout.layout_report_exception_item, null);
-						TextView tvTime = itemView.findViewById(R.id.tv_time);
-						TextView tvDuration = itemView.findViewById(R.id.tv_duration);
-						tvTime.setText(timeFormat.format(new Date(time * 1000l)));
-						tvDuration.setText(duration + getString(R.string.seconds));
-						layoutOutOfBed.addView(itemView);
-					}
-
-					View divider = inflater.inflate(R.layout.divider_line, null);
-					layoutOutOfBed.addView(divider);
-				} else {
-					tvOutOfBed.setText(R.string.nothing);
-					layoutOutOfBed.setVisibility(View.GONE);
-				}
+				tvBreathPause.setText(R.string.nothing);
+				layoutBreathPause.setVisibility(View.GONE);
+				tvOutOfBed.setText(R.string.nothing);
+				layoutOutOfBed.setVisibility(View.GONE);
 			} else {
 				tvBreathPause.setText(R.string.nothing);
 				tvOutOfBed.setText(R.string.nothing);

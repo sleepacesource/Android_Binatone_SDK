@@ -576,11 +576,11 @@ public class DeviceFragment extends BaseFragment {
 
 	private FirmwareBean getFirmwareBean() {
 		try {
-			InputStream is = mActivity.getResources().getAssets().open("MBP89SN-v1.53r(v2.0.02r)-gp-20211119.des");
+			InputStream is = mActivity.getResources().getAssets().open("MBP89SN-v1.54b(v1.1.04b)-ug-20211221.des");
 			FirmwareBean bean = new FirmwareBean();
 			bean.is = is;
-			bean.crcBin = 4130003188l;
-			bean.crcDes = 2806082678l;
+			bean.crcBin = 2255237509l;
+			bean.crcDes = 4278415203l;
 			return bean;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
